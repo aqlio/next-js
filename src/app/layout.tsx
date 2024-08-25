@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Headers/Header";
 import { ReduxProvider } from "@/app/ReduxProvider"; // adjust this path as needed
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,7 +19,6 @@ export default function RootLayout({
 		<html lang="en">
 			<body className={inter.className}>
 				<ReduxProvider>
-					<Header />
 					{children}
 				</ReduxProvider>
 			</body>
