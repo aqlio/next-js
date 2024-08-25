@@ -1,4 +1,4 @@
-import Header from "@/components/Headers/Header";
+import TeacherLoggedInHeader from "@/components/Headers/TeacherLoggedInHeader";
 
 export default function TeacherLayout({
     children,
@@ -8,6 +8,7 @@ export default function TeacherLayout({
     return (
         <html lang="en">
             <body>
+                <TeacherLoggedInHeader />
                 {children}
             </body>
         </html>
