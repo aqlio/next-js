@@ -1,6 +1,9 @@
 import { login, signup } from "@/lib/services/AuthService";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
 import IAuthState from "@/lib/interfaces/Auth/IAuthState";
+import IUserLoginRequestData from "@/lib/interfaces/Auth/IUserLoginRequestData";
+
 
 
 const initialState: IAuthState = {
@@ -10,7 +13,7 @@ const initialState: IAuthState = {
 	error: null,
 };
 
-export const loginUser = createAsyncThunk("auth/login", async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
+export const loginUser = createAsyncThunk("auth/login", async ({ email, password }: IUserLoginRequestData, { rejectWithValue }) => {
 	try {
 		const response = await login(email, password);
 		if (response.error) {
@@ -23,7 +26,7 @@ export const loginUser = createAsyncThunk("auth/login", async ({ email, password
 }
 );
 
-export const signupUser = createAsyncThunk("auth/signup", async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
+export const signupUser = createAsyncThunk("auth/signup", async ({ email, password }: IUserLoginRequestData, { rejectWithValue }) => {
 	try {
 		const response = await signup(email, password);
 		if (response.error) {
