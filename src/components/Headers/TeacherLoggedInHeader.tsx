@@ -44,9 +44,11 @@ export default function Component() {
                             Add Student
                         </Link>
                         <Link href="/teacher/add-class" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">
-                            Manage Classes
+                            Add Classes
                         </Link>
-                        
+                        <Link href="/teacher/class-list" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">
+                            Class List
+                        </Link>                        
                     </nav>
                     <div className="hidden md:flex items-center space-x-4">
                         <span className="text-sm font-medium">Welcome, {teacher.name}</span>

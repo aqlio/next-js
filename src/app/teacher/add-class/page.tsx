@@ -113,41 +113,6 @@ export default function Component() {
                         </CardFooter>
                     </form>
                 </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Existing Classes</CardTitle>
-                        <CardDescription>Manage your current classes.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Schedule</TableHead>
-                                    <TableHead>Capacity</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {classes.map((classItem) => (
-                                    <TableRow key={classItem.id}>
-                                        <TableCell>{classItem.name}</TableCell>
-                                        <TableCell>{classItem.schedule}</TableCell>
-                                        <TableCell>{classItem.capacity}</TableCell>
-                                        <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon" onClick={() => handleEdit(classItem)} aria-label={`Edit ${classItem.name}`}>
-                                                <PencilIcon className="h-4 w-4" />
-                                            </Button>
-                                            <Button variant="ghost" size="icon" onClick={() => handleDelete(classItem.id)} aria-label={`Delete ${classItem.name}`}>
-                                                <TrashIcon className="h-4 w-4" />
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
             </div>
         </div>
     )
