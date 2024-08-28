@@ -9,8 +9,11 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BookOpen, LogOut, Menu } from 'lucide-react'
+import { logout } from '@/store/authSlice';
 import UserAvatar from '../Profile/UserAvatar';
+import { useAppDispatch } from '@/store/hooks';
+import { useRouter } from 'next/navigation';
+import { BookOpen, LogOut, Menu } from 'lucide-react'
 
 // In a real application, you'd fetch this data from your auth system
 const teacher = {
@@ -19,10 +22,13 @@ const teacher = {
 }
 
 export default function TeacherLoggedInHeader() {
+    const dispatch = useAppDispatch();
+    const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     const handleLogout = () => {
-        console.log("Logout clicked")
+        dispatch(logout());
+        router.push('/teacher/login');
     }
 
     return (
@@ -39,27 +45,6 @@ export default function TeacherLoggedInHeader() {
                             <span className="sr-only">Tuition Academy</span>
                         </Link>
                     </div>
-
-
-
-
-
-
-
-                    <nav className="hidden md:flex space-x-4">
-                        <Link href="/teacher/student-list" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">
-                            Student List
-                        </Link>
-                        <Link href="/teacher/add-student" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">
-                            Add Student
-                        </Link>
-                        <Link href="/teacher/add-class" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">
-                            Add Classes
-                        </Link>
-                        <Link href="/teacher/class-list" className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium">
-                            Class List
-                        </Link>                        
-                    </nav>
 
 
 
