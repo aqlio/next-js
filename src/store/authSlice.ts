@@ -2,8 +2,8 @@ import { login, signup } from "@/lib/services/AuthService";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import IAuthState from "@/lib/interfaces/Auth/IAuthState";
+import IAuthApiResponse from "@/lib/interfaces/Auth/IAuthApiResponse";
 import IUserLoginRequestData from "@/lib/interfaces/Auth/IUserLoginRequestData";
-
 
 
 const initialState: IAuthState = {
@@ -15,10 +15,7 @@ const initialState: IAuthState = {
 
 export const loginUser = createAsyncThunk("auth/login", async ({ email, password }: IUserLoginRequestData, { rejectWithValue }) => {
 	try {
-		const response = await login(email, password);
-		if (response.error) {
-			return rejectWithValue(response.error);
-		}
+		const response: IAuthApiResponse = await login(email, password);
 		return response;
 	} catch (error) {
 		return rejectWithValue("Login failed");
@@ -28,10 +25,7 @@ export const loginUser = createAsyncThunk("auth/login", async ({ email, password
 
 export const signupUser = createAsyncThunk("auth/signup", async ({ email, password }: IUserLoginRequestData, { rejectWithValue }) => {
 	try {
-		const response = await signup(email, password);
-		if (response.error) {
-			return rejectWithValue(response.error);
-		}
+		const response: IAuthApiResponse = await signup(email, password);
 		return response;
 	} catch (error) {
 		return rejectWithValue("Signup failed");
@@ -57,7 +51,6 @@ const authSlice = createSlice({
 			})
 			.addCase(loginUser.fulfilled, (state, action) => {
 				state.isLoading = false;
-				state.user = action.payload.user;
 				if (action.payload.token) {
 					state.token = action.payload.token;
 					localStorage.setItem("token", action.payload.token);
@@ -76,7 +69,6 @@ const authSlice = createSlice({
 			})
 			.addCase(signupUser.fulfilled, (state, action) => {
 				state.isLoading = false;
-				state.user = action.payload.user;
 				if (action.payload.token) {
 					state.token = action.payload.token;
 					localStorage.setItem("token", action.payload.token);

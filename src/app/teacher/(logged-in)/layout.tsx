@@ -7,13 +7,10 @@ export default function TeacherLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body>
-                <TeacherLeftNavigation />
-                <TeacherLoggedInHeader />
-
-                {children}
-            </body>
-        </html>
+        <div>
+            <TeacherLeftNavigation />
+            <TeacherLoggedInHeader />
+            {children}
+        </div>
     );
 }
