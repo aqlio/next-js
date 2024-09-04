@@ -13,7 +13,7 @@ export default function Signup() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Login attempted with:', { email, password });
-    router.push('/dashboard');
+    router.push('/home');
   };
 
   return (
