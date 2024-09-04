@@ -1,25 +1,96 @@
-"use client";
+"use client"
 
-import Link from 'next/link'
-import { MountainIcon } from 'lucide-react'
 
-export default function Component() {
-  return (
-    <header className="w-full py-4 px-4 sm:px-6 lg:px-8 bg-background border-b absolute top-0 left-0 right-0">
-      <div className="container mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
-          <MountainIcon className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold text-primary">Logo</span>
-        </Link>
-        <nav className="sm:flex space-x-4 items-center">
-          <Link href="/teacher/login" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            Login
-          </Link>
-          <Link href="/teacher/signup" className="text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 px-3 py-2 rounded-md transition-colors">
-            Sign Up
-          </Link>
+
+
+
+import Link from "next/link"
+import * as React from "react"
+import { usePathname, useRouter } from "next/navigation"
+
+import { cn } from "@/lib/utils"
+import { logout } from '@/store/authSlice'
+import { useAppDispatch } from '@/store/hooks'
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Users, UserPlus, FolderPlus, Layers, LogOut } from "lucide-react"
+
+
+import Logo from "@/components/Logo"
+import UserAvatar from "@/components/Profile/UserAvatar"
+import MobileNavMenu from "@/components/Navigations/TeacherLeftNav"
+import ProfileDropdownMenu from "@/components/Profile/ProfileDropdownMenu"
+
+
+
+
+
+
+
+const navigationItems = [
+    { name: 'Student List', icon: Users, href: '/teacher/student-list' },
+    { name: 'Add Student', icon: UserPlus, href: '/teacher/add-student' },
+    { name: 'Add Classes', icon: FolderPlus, href: '/teacher/add-class' },
+    { name: 'Class List', icon: Layers, href: '/teacher/class-list' },
+]
+
+
+
+
+
+export default function HeaderAndNavigation() {
+
+
+
+    const router = useRouter();
+    const pathname = usePathname()
+    const dispatch = useAppDispatch();
+
+
+
+
+    const handleLogout = () => {
+        dispatch(logout());
+        router.push('/teacher/login');
+    }
+
+
+    
+
+
+    return (
+        <nav className="border-b">
+            <div className="flex h-16 items-center px-4">
+                <Logo className="mr-4" />
+                <div className="hidden md:flex md:space-x-4">
+                    {navigationItems.map((item) => (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={cn(
+                                "flex items-center text-sm font-medium transition-colors hover:text-primary",
+                                pathname === item.href
+                                    ? "text-primary"
+                                    : "text-muted-foreground"
+                            )}
+                        >
+                            <item.icon className="mr-2 h-4 w-4" />
+                            {item.name}
+                        </Link>
+                    ))}
+                </div>
+                <div className="flex-grow" />
+                <div className="flex items-center justify-between space-x-2 md:justify-end">
+                    <ProfileDropdownMenu />
+                </div>
+                <MobileNavMenu navigationItems={navigationItems} />
+            </div>
         </nav>
-      </div>
-    </header>
-  )
+    )
 }

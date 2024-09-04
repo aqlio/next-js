@@ -1,25 +1,41 @@
 "use client";
 
-import { useState } from 'react'
+
+
+
 import Link from 'next/link'
-import { Button } from "@/components/ui/button"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation';
+
+
 import {
     DropdownMenu,
-    DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuContent,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { logout } from '@/store/authSlice';
-import UserAvatar from '../Profile/UserAvatar';
-import { useAppDispatch } from '@/store/hooks';
-import { useRouter } from 'next/navigation';
-import { BookOpen, LogOut, Menu } from 'lucide-react'
+import { Button } from "@/components/ui/button"
 
-// In a real application, you'd fetch this data from your auth system
+
+import { logout } from '@/store/authSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { LogOut, Menu } from 'lucide-react'
+
+import Logo from '@/components/Logo'
+import UserAvatar from '@/components/Profile/UserAvatar';
+
+
 const teacher = {
     name: "Jane Smith",
     avatarUrl: "https://i.pravatar.cc/150?u=janesmith@example.com"
 }
+
+
+
+
+
+
+
 
 export default function TeacherLoggedInHeader() {
     const dispatch = useAppDispatch();
@@ -35,22 +51,9 @@ export default function TeacherLoggedInHeader() {
         <header className="bg-background border-b">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    
-                    
-                    
-                    
                     <div className="flex items-center">
-                        <Link href="/dashboard" className="flex-shrink-0">
-                            <BookOpen className="h-8 w-8 text-primary" />
-                            <span className="sr-only">Tuition Academy</span>
-                        </Link>
+                        <Logo />
                     </div>
-
-
-
-
-
-
 
                     <div className="hidden md:flex items-center space-x-4">
                         <span className="text-sm font-medium">Welcome, {teacher.name}</span>
