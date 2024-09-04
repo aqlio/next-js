@@ -11,7 +11,7 @@ const initialClasses = [
     { id: 1, name: 'Mathematics 101', schedule: 'Mon, Wed, Fri 9:00 AM', capacity: 20 },
     { id: 2, name: 'English Literature', schedule: 'Tue, Thu 2:00 PM', capacity: 15 },
     { id: 3, name: 'Physics Advanced', schedule: 'Mon, Thu 11:00 AM', capacity: 18 },
-]
+] 
 
 export default function Component() {
     const [classes, setClasses] = useState(initialClasses)
