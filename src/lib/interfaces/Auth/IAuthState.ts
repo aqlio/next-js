@@ -1,5 +1,7 @@
+import { IUserData } from './IUserData';
+
 export default interface IAuthState {
-    user: any | null;
+    user: IUserData | null;
     token: string | null;
     isLoading: boolean;
     error: string | null;
