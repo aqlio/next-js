@@ -1,4 +1,4 @@
-import Header from "@/components/Headers/Header";
+import LoggedInHeader from "@/components/Headers/LoggedInHeader";
 
 export default function TeacherLayout({
     children,
@@ -7,7 +7,7 @@ export default function TeacherLayout({
 }>) {
     return (
         <div>
-            <Header />
+            <LoggedInHeader />
             {children}
         </div>
     );

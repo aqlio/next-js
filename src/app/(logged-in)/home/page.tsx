@@ -7,7 +7,7 @@ export default function HomePage() {
     return (
         <div className="container mx-auto px-4 py-8">
             <header className="text-center mb-12">
-                <h1 className="text-4xl font-bold text-primary mb-4">Welcome to EduExcel Academy</h1>
+                <h1 className="text-4xl font-bold text-primary mb-4">Welcome to My Academy</h1>
                 <p className="text-xl text-muted-foreground">Empowering teachers to inspire and educate</p>
             </header>
 

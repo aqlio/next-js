@@ -1,6 +1,6 @@
-import Header from "@/components/Headers/Header";
+import LoggedOutHeader from "@/components/Headers/LoggedOutHeader";
 
-export default function TeacherLayout({
+export default function AuthLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
@@ -8,7 +8,7 @@ export default function TeacherLayout({
     return (
         <html lang="en">
             <body>
-                <Header />
+                <LoggedOutHeader />
                 {children}
             </body>
         </html>

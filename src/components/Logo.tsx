@@ -9,9 +9,9 @@ interface LogoProps {
 
 const Logo: FC<LogoProps> = ({ className, href = "/home" }) => {
   return (
-    <Link href={href} className={`flex-shrink-0 flex items-center ${className}`}>
+    <Link href={href} className={`flex items-center ${className}`}>
       <BookOpen className="h-8 w-8 text-primary" />
-      <span className="sr-only">Tuition Academy</span>
+      <span className="text-2xl font-bold ml-2">My Academy</span>
     </Link>
   )
 };
