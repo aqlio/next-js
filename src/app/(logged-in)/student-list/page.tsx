@@ -66,7 +66,7 @@ export default function Component() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="max-w-sm"
                     />
-                    <Button onClick={() => router.push('/teacher/add-student')}>Add New Student</Button>
+                    <Button onClick={() => router.push('/add-student')}>Add New Student</Button>
                 </div>
                 <div className="rounded-md border">
                     <Table>

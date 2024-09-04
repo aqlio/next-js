@@ -44,7 +44,7 @@ export default function TeacherLoggedInHeader() {
 
     const handleLogout = () => {
         dispatch(logout());
-        router.push('/teacher/login');
+        router.push('/login');
     }
 
     return (

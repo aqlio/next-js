@@ -36,7 +36,7 @@ export default function Component() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Button onClick={() => router.push('/teacher/add-class')}>
+                <Button onClick={() => router.push('/add-class')}>
                     <PlusCircle className="mr-2 h-4 w-4"/> Add New Class
                 </Button>
             </div>

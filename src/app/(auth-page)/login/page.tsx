@@ -18,7 +18,7 @@ export default function Login() {
 		e.preventDefault();
 		const resultAction = await dispatch(loginUser({ email, password }));
 		if (loginUser.fulfilled.match(resultAction)) {
-			router.push('/teacher/student-list');
+			router.push('/student-list');
 		}
 		// Error handling is now managed by Redux
 	};

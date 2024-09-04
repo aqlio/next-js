@@ -34,10 +34,10 @@ import ProfileDropdownMenu from "@/components/Profile/ProfileDropdownMenu"
 
 
 const navigationItems = [
-    { name: 'Student List', icon: Users, href: '/teacher/student-list' },
-    { name: 'Add Student', icon: UserPlus, href: '/teacher/add-student' },
-    { name: 'Add Classes', icon: FolderPlus, href: '/teacher/add-class' },
-    { name: 'Class List', icon: Layers, href: '/teacher/class-list' },
+    { name: 'Student List', icon: Users, href: '/student-list' },
+    { name: 'Add Student', icon: UserPlus, href: '/add-student' },
+    { name: 'Add Classes', icon: FolderPlus, href: '/add-class' },
+    { name: 'Class List', icon: Layers, href: '/class-list' },
 ]
 
 
@@ -57,7 +57,7 @@ export default function HeaderAndNavigation() {
 
     const handleLogout = () => {
         dispatch(logout());
-        router.push('/teacher/login');
+        router.push('/login');
     }
 
 
