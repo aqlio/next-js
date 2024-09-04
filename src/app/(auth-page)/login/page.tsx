@@ -2,17 +2,32 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { loginUser } from '@/store/authSlice';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loginUser } from '@/store/authSlice';
+
+
+
+
+
 
 export default function Login() {
+	
+	
+	
 	const router = useRouter();
-	const dispatch = useAppDispatch();
-	const { isLoading, error } = useAppSelector((state) => state.auth);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+
+	const dispatch = useAppDispatch();
+	const { isLoading, error } = useAppSelector((state) => state.auth);
+
+
+
+
+
+
 
 	const handleLogin = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -20,8 +35,12 @@ export default function Login() {
 		if (loginUser.fulfilled.match(resultAction)) {
 			router.push('/home');
 		}
-		// Error handling is now managed by Redux
 	};
+
+
+
+
+
 
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-gray-100">

@@ -7,6 +7,7 @@
 import Link from "next/link"
 import * as React from "react"
 import { usePathname, useRouter } from "next/navigation"
+import { useAuth } from '@/store/hooks';
 
 import { logout } from '@/store/authSlice'
 import { useAppDispatch } from '@/store/hooks'
@@ -23,36 +24,28 @@ import { navigationItems } from "@/config/navigation"
 
 
 export default function LoggedInHeader() {
+	const { isLoggedIn } = useAuth();
 
+	const router = useRouter();
+	const pathname = usePathname()
+	const dispatch = useAppDispatch();
 
+	const handleLogout = () => {
+		dispatch(logout());
+		router.push('/login');
+	}
 
-    const router = useRouter();
-    const pathname = usePathname()
-    const dispatch = useAppDispatch();
-
-
-
-
-    const handleLogout = () => {
-        dispatch(logout());
-        router.push('/login');
-    }
-
-
-    
-
-
-    return (
-        <nav className="border-b bg-background">
-            <div className="flex h-16 items-center px-4">
-                <Logo className="mr-4" />
-                <HeaderNavLinks />
-                <div className="flex-grow" />
-                <div className="flex items-center justify-between space-x-2 md:justify-end">
-                    <ProfileDropdownMenu />
-                </div>
-                <MobileNavMenu navigationItems={navigationItems} />
-            </div>
-        </nav>
-    )
+	return (
+		<nav className="border-b bg-background">
+			<div className="flex h-16 items-center px-4">
+				<Logo className="mr-4" />
+				<HeaderNavLinks />
+				<div className="flex-grow" />
+				<div className="flex items-center justify-between space-x-2 md:justify-end">
+					{isLoggedIn && <ProfileDropdownMenu />}
+				</div>
+				<MobileNavMenu navigationItems={navigationItems} />
+			</div>
+		</nav>
+	)
 }
