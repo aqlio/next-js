@@ -1,8 +1,8 @@
-import IAuthState from "@/lib/interfaces/Auth/IAuthState";
 import AuthService from "@/lib/services/AuthService";
 import UserService from "@/lib/services/UserService";
+import IAuthState from "@/lib/interfaces/Auth/IAuthState";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import IAuthApiResponse from "@/lib/interfaces/Auth/IAuthApiResponse";
+import IUserLoginResponse from "@/lib/interfaces/Auth/IUserLoginResponse";
 import IUserLoginRequestData from "@/lib/interfaces/Auth/IUserLoginRequestData";
 import { getInitialToken, setToken, removeToken } from "@/lib/utils/tokenUtils";
 
@@ -18,7 +18,7 @@ const initialState: IAuthState = {
 
 export const loginUser = createAsyncThunk("auth/login", async ({ email, password }: IUserLoginRequestData, { dispatch, rejectWithValue }) => {
 	try {
-		const response: IAuthApiResponse = await authService.login(email, password);
+		const response: IUserLoginResponse = await authService.login(email, password);
 		if (response.token) {
 			dispatch(fetchUserData());
 		}
@@ -30,7 +30,7 @@ export const loginUser = createAsyncThunk("auth/login", async ({ email, password
 
 export const signupUser = createAsyncThunk("auth/signup", async ({ email, password }: IUserLoginRequestData, { rejectWithValue }) => {
 	try {
-		const response: IAuthApiResponse = await authService.signup(email, password);
+		const response: IUserLoginResponse = await authService.signup(email, password);
 		return response;
 	} catch (error) {
 		return rejectWithValue("Signup failed");

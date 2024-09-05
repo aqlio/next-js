@@ -8,4 +8,10 @@ export const API_PATHS = {
   USER: {
     GET_USER: '/user',
   },
+  CLASS: {
+    GET_CLASSES: '/class',
+    CREATE_CLASS: '/class',
+    UPDATE_CLASS: '/class',
+    DELETE_CLASS: '/class',
+  },
 };
