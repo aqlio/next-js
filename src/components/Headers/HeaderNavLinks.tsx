@@ -1,24 +1,16 @@
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Users, UserPlus, FolderPlus, Layers } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { INavigationItem } from "@/lib/types/INavigationItem"
+import { INavigationProps } from "@/lib/types/INavigationProps"
 
-const navigationItems = [
-    { name: 'Student List', icon: Users, href: '/student-list' },
-    { name: 'Add Student', icon: UserPlus, href: '/add-student' },
-    { name: 'Add Classes', icon: FolderPlus, href: '/add-class' },
-    { name: 'Class List', icon: Layers, href: '/class-list' },
-]
-
-export default function HeaderNavLinks() {
+export default function HeaderNavLinks({ navigationItems }: INavigationProps) {
     const pathname = usePathname()
 
     return (
         <div className="hidden md:flex md:space-x-4">
-            {navigationItems.map((item) => (
-                <Link
-                    key={item.href}
-                    href={item.href}
+            {navigationItems.map((item: INavigationItem) => (
+                <Link key={item.href} href={item.href}
                     className={cn(
                         "flex items-center text-sm font-medium transition-colors hover:text-primary",
                         pathname === item.href

@@ -1,24 +1,15 @@
 import React from 'react'
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import Logo from "@/components/Logo"
+import { MenuIcon } from "lucide-react"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { INavigationProps } from "@/lib/types/INavigationProps"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { MenuIcon } from "lucide-react"
-import Logo from "@/components/Logo"
 
-interface NavigationItem {
-    name: string;
-    icon: React.ElementType;
-    href: string;
-}
-
-interface MobileNavMenuProps {
-    navigationItems: NavigationItem[];
-}
-
-export default function MobileNavMenu({ navigationItems }: MobileNavMenuProps) {
+export default function LeftNavigation({ navigationItems }: INavigationProps) {
     const pathname = usePathname()
 
     return (
