@@ -18,7 +18,7 @@ export default function ProfileDropdownMenu() {
 
     const handleLogout = () => {
         dispatch(logout());
-        router.push('/login');
+        router.push('/');
     }
 
     return (
