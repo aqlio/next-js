@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "@/app/ReduxProvider"; // adjust this path as needed
-
+import AuthInitializer from "@/components/AuthInitializer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -19,6 +19,7 @@ export default function RootLayout({
 		<html lang="en">
 			<body className={inter.className}>
 				<ReduxProvider>
+					<AuthInitializer />
 					{children}
 				</ReduxProvider>
 			</body>

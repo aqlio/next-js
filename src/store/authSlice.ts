@@ -37,17 +37,30 @@ export const signupUser = createAsyncThunk("auth/signup", async ({ email, passwo
 	}
 });
 
-export const fetchUserData = createAsyncThunk("auth/fetchUserData", async (_, { getState, rejectWithValue }) => {
-	const { auth } = getState() as { auth: IAuthState };
-	if (!auth.token) {
-		return rejectWithValue("No token available");
+export const fetchUserData = createAsyncThunk(
+	"auth/fetchUserData",
+	async (_, { getState, rejectWithValue }) => {
+		const { auth } = getState() as { auth: IAuthState };
+		if (!auth.token) {
+			return rejectWithValue("No token available");
+		}
+		try {
+			return await userService.getUser(auth.token);
+		} catch (error) {
+			return rejectWithValue("Failed to fetch user data");
+		}
 	}
-	try {
-		return await userService.getUser(auth.token);
-	} catch (error) {
-		return rejectWithValue("Failed to fetch user data");
+);
+
+export const initializeAuth = createAsyncThunk(
+	"auth/initialize",
+	async (_, { getState, dispatch }) => {
+		const { auth } = getState() as { auth: IAuthState };
+		if (auth.token && !auth.user) {
+			await dispatch(fetchUserData());
+		}
 	}
-});
+);
 
 const authSlice = createSlice({
 	name: "auth",
@@ -109,6 +122,18 @@ const authSlice = createSlice({
 			.addCase(fetchUserData.rejected, (state, action) => {
 				state.isLoading = false;
 				state.error = action.payload as string;
+			})
+			.addCase(initializeAuth.pending, (state) => {
+				state.isLoading = true;
+			})
+			.addCase(initializeAuth.fulfilled, (state) => {
+				state.isLoading = false;
+				// We don't need to update the state here because fetchUserData will have already done so if it was successful
+			})
+			.addCase(initializeAuth.rejected, (state) => {
+				state.isLoading = false;
+				state.token = null;
+				removeToken();
 			});
 	},
 });

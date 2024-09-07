@@ -6,7 +6,7 @@ export const API_PATHS = {
     SIGNUP: '/auth/local',
   },
   USER: {
-    GET_USER: '/user',
+    GET_USER: '/student',
   },
   CLASS: {
     GET_CLASSES: '/class',

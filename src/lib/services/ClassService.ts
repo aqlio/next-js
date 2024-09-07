@@ -2,7 +2,22 @@ import BaseApiService from './BaseApiService';
 import { API_PATHS } from '@/constants/apiConstants';
 import { IClass } from '@/lib/interfaces/Class/IClass';
 
+
+
+
+
+
+
+
+
 export default class ClassService extends BaseApiService {
+
+
+
+
+
+
+
   async getClasses(token: string): Promise<IClass[]> {
     try {
       this.setAuthToken(token);
@@ -13,6 +28,14 @@ export default class ClassService extends BaseApiService {
       throw error;
     }
   }
+
+
+
+
+
+
+
+
 
   async createClass(token: string, classData: Omit<IClass, 'id'>): Promise<IClass> {
     try {
@@ -25,6 +48,16 @@ export default class ClassService extends BaseApiService {
     }
   }
 
+
+
+
+
+
+
+
+
+
+
   async updateClass(token: string, classId: string, classData: Partial<IClass>): Promise<IClass> {
     try {
       this.setAuthToken(token);
@@ -36,6 +69,15 @@ export default class ClassService extends BaseApiService {
     }
   }
 
+
+
+
+
+
+
+
+
+
   async deleteClass(token: string, classId: string): Promise<void> {
     try {
       this.setAuthToken(token);
@@ -45,4 +87,13 @@ export default class ClassService extends BaseApiService {
       throw error;
     }
   }
+
+
+
+
+
+
+
+
+  
 }
