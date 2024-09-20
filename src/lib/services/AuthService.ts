@@ -1,6 +1,6 @@
 import BaseApiService from "./BaseApiService";
 import { API_PATHS } from '@/constants/apiConstants';
-import IAuthApiResponse from "../interfaces/Auth/IUserLoginResponse";
+import IAuthApiResponse from "../../interfaces/Auth/IUserLoginResponse";
 import IUserLoginRequestData from "@/lib/interfaces/Auth/IUserLoginRequestData";
 
 export default class AuthService extends BaseApiService {
