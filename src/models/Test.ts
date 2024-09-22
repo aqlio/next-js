@@ -4,7 +4,7 @@ import { IsNumber, IsOptional, IsString, ValidateNested, IsArray } from 'class-v
 import { BaseModel } from './BaseModel';
 import { ITest } from '../interfaces/ITest';
 
-export class Test extends BaseModel<Test> implements ITest {
+export class Test extends BaseModel implements ITest {
   static apiEndpoint = '/tests';
 
   @Expose()
@@ -49,8 +49,7 @@ export class Test extends BaseModel<Test> implements ITest {
   updatedAt?: string;
 
   constructor(partial: Partial<Test>) {
-    super();
-    Object.assign(this, partial);
+    super(partial);
   }
 
   // Additional methods or overrides if necessary

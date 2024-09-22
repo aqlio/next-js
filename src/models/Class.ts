@@ -5,7 +5,7 @@ import { BaseModel } from './BaseModel';
 import { IClass } from '../interfaces/IClass';
 import { Test } from './Test';
 
-export class Class extends BaseModel<Class> implements IClass {
+export class Class extends BaseModel implements IClass {
   static apiEndpoint = '/classes';
 
   @Expose()
@@ -73,11 +73,7 @@ export class Class extends BaseModel<Class> implements IClass {
   updatedAt?: string;
 
   constructor(partial: Partial<Class>) {
-    super();
-    Object.assign(this, partial);
-    if (partial.tests) {
-      this.tests = partial.tests.map(test => new Test(test));
-    }
+    super(partial);
   }
 
   // Additional methods or overrides if necessary

@@ -4,7 +4,7 @@ import { IsDateString, IsOptional, IsString, IsArray } from 'class-validator';
 import { BaseModel } from './BaseModel';
 import { ILecture } from '../interfaces/ILecture';
 
-export class Lecture extends BaseModel<Lecture> implements ILecture {
+export class Lecture extends BaseModel implements ILecture {
   static apiEndpoint = '/lectures';
 
   @Expose()
@@ -44,8 +44,7 @@ export class Lecture extends BaseModel<Lecture> implements ILecture {
   updatedAt?: string;
 
   constructor(partial: Partial<Lecture>) {
-    super();
-    Object.assign(this, partial);
+    super(partial);
   }
 
   // Additional methods or overrides if necessary

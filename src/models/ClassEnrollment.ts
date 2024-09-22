@@ -5,7 +5,7 @@ import { BaseModel } from './BaseModel';
 import { IClassEnrollment } from '../interfaces/IClassEnrollment';
 import { Test } from './Test';
 
-export class ClassEnrollment extends BaseModel<ClassEnrollment> implements IClassEnrollment {
+export class ClassEnrollment extends BaseModel implements IClassEnrollment {
   static apiEndpoint = '/enrollments';
 
   @Expose()
@@ -63,11 +63,7 @@ export class ClassEnrollment extends BaseModel<ClassEnrollment> implements IClas
   updatedAt?: string;
 
   constructor(partial: Partial<ClassEnrollment>) {
-    super();
-    Object.assign(this, partial);
-    if (partial.scores) {
-      this.scores = partial.scores.map(score => new Test(score));
-    }
+    super(partial);
   }
 
   // Additional methods or overrides if necessary

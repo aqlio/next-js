@@ -4,7 +4,7 @@ import { IsEmail, IsBoolean, IsOptional, IsString, IsArray } from 'class-validat
 import { BaseModel } from './BaseModel';
 import { IStudent } from '../interfaces/IStudent';
 
-export class Student extends BaseModel<Student> implements IStudent {
+export class Student extends BaseModel implements IStudent {
   static apiEndpoint = '/students';
 
   @Expose()
@@ -97,8 +97,7 @@ export class Student extends BaseModel<Student> implements IStudent {
   updatedAt?: string;
 
   constructor(partial: Partial<Student>) {
-    super();
-    Object.assign(this, partial);
+    super(partial);
   }
 
   // Additional methods or overrides if necessary

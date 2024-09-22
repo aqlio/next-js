@@ -5,7 +5,7 @@ import { BaseModel } from './BaseModel';
 import { IOrganization } from '../interfaces/IOrganization';
 import { Billing } from './Billing';
 
-export class Organization extends BaseModel<Organization> implements IOrganization {
+export class Organization extends BaseModel implements IOrganization {
   static apiEndpoint = '/organizations';
 
   @Expose()
@@ -53,11 +53,7 @@ export class Organization extends BaseModel<Organization> implements IOrganizati
   updatedAt?: string;
 
   constructor(partial: Partial<Organization>) {
-    super();
-    Object.assign(this, partial);
-    if (partial.billing) {
-      this.billing = new Billing(partial.billing);
-    }
+    super(partial);
   }
 
   // Additional methods or overrides if necessary
