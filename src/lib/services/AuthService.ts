@@ -1,7 +1,7 @@
 import BaseApiService from "./BaseApiService";
 import { API_PATHS } from '@/constants/apiConstants';
-import IAuthApiResponse from "../../interfaces/Auth/IUserLoginResponse";
-import IUserLoginRequestData from "@/lib/interfaces/Auth/IUserLoginRequestData";
+import IAuthApiResponse from "@/interfaces/IAuthApiResponse";
+import IUserLoginRequestData from "@/interfaces/IUserLoginRequestData";
 
 export default class AuthService extends BaseApiService {
   async login(email: string, password: string): Promise<IAuthApiResponse> {

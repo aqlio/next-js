@@ -1,10 +1,10 @@
 import AuthService from "@/lib/services/AuthService";
 import UserService from "@/lib/services/UserService";
-import IAuthState from "@/lib/interfaces/Auth/IAuthState";
+import IAuthState from "@/interfaces/IAuthState";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import IUserLoginResponse from "@/lib/interfaces/Auth/IUserLoginResponse";
-import IUserLoginRequestData from "@/lib/interfaces/Auth/IUserLoginRequestData";
-import { getInitialToken, setToken, removeToken } from "@/lib/utils/tokenUtils";
+import IUserLoginResponse from "@/interfaces/IUserLoginResponse";
+import IUserLoginRequestData from "@/interfaces/IUserLoginRequestData";
+import { getInitialToken, setToken, removeToken } from "@/utils/tokenUtils";
 
 const authService = new AuthService();
 const userService = new UserService();

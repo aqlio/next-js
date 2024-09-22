@@ -1,7 +1,7 @@
 // src/lib/services/ClassService.ts
+import { Class } from '@/models/Class';
 import BaseApiService from './BaseApiService';
 import { API_PATHS } from '@/constants/apiConstants';
-import { Class } from '@/lib/models/Class';
 import { plainToInstance } from 'class-transformer';
 
 export default class ClassService extends BaseApiService {

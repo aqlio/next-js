@@ -1,9 +1,10 @@
 // src/models/Billing.ts
+import { BaseModel } from './BaseModel';
 import { Expose } from 'class-transformer';
 import { IsString, IsArray, ArrayNotEmpty } from 'class-validator';
 import { IBilling } from '../interfaces/IBilling';
 
-export class Billing implements IBilling {
+export class Billing extends BaseModel<Billing> implements IBilling {
   @Expose()
   @IsString()
   name!: string;
@@ -46,6 +47,6 @@ export class Billing implements IBilling {
   emails!: string[];
 
   constructor(partial: Partial<Billing>) {
-    Object.assign(this, partial);
+    super(partial);
   }
 }

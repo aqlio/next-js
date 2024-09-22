@@ -11,6 +11,15 @@ const API_BASE_URL = process.env.API_BASE_URL;
 export abstract class BaseModel<T> {
   protected static apiEndpoint: string;
 
+
+
+  constructor(partial: Partial<T>) {
+    Object.assign(this, partial);
+  }
+
+
+
+
   protected static axiosInstance: AxiosInstance = axios.create({
     baseURL: API_BASE_URL,
     headers: {
