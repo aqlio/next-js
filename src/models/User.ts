@@ -96,7 +96,7 @@ export class User extends BaseModel implements IUser {
   @IsString()
   updatedAt?: string;
 
-  constructor(partial: Partial<User>) {
+  constructor(partial?: Partial<User>) {
     super(partial);
   }
 

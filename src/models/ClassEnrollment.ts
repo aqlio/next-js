@@ -62,7 +62,7 @@ export class ClassEnrollment extends BaseModel implements IClassEnrollment {
   @IsString()
   updatedAt?: string;
 
-  constructor(partial: Partial<ClassEnrollment>) {
+  constructor(partial?: Partial<ClassEnrollment>) {
     super(partial);
   }
 

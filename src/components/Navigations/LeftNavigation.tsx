@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from "next/link"
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/utils"
 import Logo from "@/components/Logo"
 import { MenuIcon } from "lucide-react"
 import { usePathname } from "next/navigation"

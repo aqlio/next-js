@@ -48,7 +48,7 @@ export class Test extends BaseModel implements ITest {
   @IsString()
   updatedAt?: string;
 
-  constructor(partial: Partial<Test>) {
+  constructor(partial?: Partial<Test>) {
     super(partial);
   }
 

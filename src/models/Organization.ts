@@ -52,7 +52,7 @@ export class Organization extends BaseModel implements IOrganization {
   @IsString()
   updatedAt?: string;
 
-  constructor(partial: Partial<Organization>) {
+  constructor(partial?: Partial<Organization>) {
     super(partial);
   }
 

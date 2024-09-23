@@ -43,7 +43,7 @@ export class Lecture extends BaseModel implements ILecture {
   @IsString()
   updatedAt?: string;
 
-  constructor(partial: Partial<Lecture>) {
+  constructor(partial?: Partial<Lecture>) {
     super(partial);
   }
 

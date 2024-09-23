@@ -2,9 +2,8 @@
 
 import { BaseRepository } from "./BaseRepository";
 import { Lecture } from "@/models/Lecture";
-import { ILecture } from "@/interfaces/ILecture";
 
-export class LectureRepository extends BaseRepository<ILecture> {
+export class LectureRepository extends BaseRepository<Lecture> {
   protected apiEndpoint = "/lectures";
   protected modelClass = Lecture;
 

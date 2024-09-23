@@ -1,19 +1,16 @@
 "use client"
 
 import 'reflect-metadata';
-import { useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { DollarSign, BarChart2, TrendingUp, UserCheck, Menu } from 'lucide-react'
+import { DollarSign, BarChart2, TrendingUp, UserCheck } from 'lucide-react'
 import { LucideIcon } from 'lucide-react'
 import LoggedOutHeader from '@/components/Headers/LoggedOutHeader'
 
 
 export default function Home() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const FeatureCard = ({ icon: Icon, title, description }: { icon: LucideIcon; title: string; description: string }) => (
     <Card>

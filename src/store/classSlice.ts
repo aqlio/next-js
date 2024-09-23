@@ -1,7 +1,11 @@
-import ClassService from '@/lib/services/ClassService';
-import { IClass } from '@/lib/interfaces/Class/IClass';
+// src/store/classSlice.ts
+
+import { IClass } from '@/interfaces/IClass';
+import ClassService from '@/Services/ClassService';
+import { IClassState } from '@/interfaces/IClassState';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { IClassState } from '@/lib/interfaces/Class/IClassState';
+
+
 
 const classService = new ClassService();
 
@@ -20,8 +24,8 @@ export const fetchClasses = createAsyncThunk(
     }
     try {
       return await classService.getClasses(auth.token);
-    } catch (error) {
-      return rejectWithValue('Failed to fetch classes');
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch classes');
     }
   }
 );
@@ -35,8 +39,8 @@ export const createClass = createAsyncThunk(
     }
     try {
       return await classService.createClass(auth.token, classData);
-    } catch (error) {
-      return rejectWithValue('Failed to create class');
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to create class');
     }
   }
 );
@@ -50,8 +54,8 @@ export const updateClass = createAsyncThunk(
     }
     try {
       return await classService.updateClass(auth.token, classId, classData);
-    } catch (error) {
-      return rejectWithValue('Failed to update class');
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update class');
     }
   }
 );
@@ -66,8 +70,8 @@ export const deleteClass = createAsyncThunk(
     try {
       await classService.deleteClass(auth.token, classId);
       return classId;
-    } catch (error) {
-      return rejectWithValue('Failed to delete class');
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete class');
     }
   }
 );

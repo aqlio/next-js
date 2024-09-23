@@ -72,7 +72,7 @@ export class Class extends BaseModel implements IClass {
   @IsString()
   updatedAt?: string;
 
-  constructor(partial: Partial<Class>) {
+  constructor(partial?: Partial<Class>) {
     super(partial);
   }
 

@@ -1,68 +1,82 @@
-// src/services/ClassService.ts
+// src/lib/services/ClassService.ts
 
-import { ClassRepository } from "../repositories/ClassRepository";
-import { IClass } from "../interfaces/IClass";
+import { API_PATHS } from "@/constants/apiConstants";
+import { IClass } from "@/interfaces/IClass";
+import axios, { AxiosInstance } from "axios";
+import { plainToInstance } from "class-transformer";
+import { Class } from "@/models/Class";
 
-export class ClassService {
-  private classRepository: ClassRepository;
+class ClassService {
+  private axiosInstance: AxiosInstance;
 
   constructor() {
-    this.classRepository = new ClassRepository();
+    this.axiosInstance = axios.create({
+      baseURL: API_PATHS.CLASS.GET_CLASSES, // Adjust the API path accordingly
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
   }
 
   /**
-   * Set the authentication token for the repository.
+   * Fetch all classes with optional filters.
+   * @param token 
+   * @param params 
+   * @returns IClass[]
    */
-  setAuthToken(token: string) {
-    this.classRepository.setAuthToken(token);
-  }
-
-  /**
-   * Remove the authentication token from the repository.
-   */
-  removeAuthToken() {
-    this.classRepository.removeAuthToken();
+  async getClasses(token: string, params?: Record<string, any>): Promise<IClass[]> {
+    const response = await this.axiosInstance.get<IClass[]>(API_PATHS.CLASS.GET_CLASSES, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params,
+    });
+    return response.data.map(cls => plainToInstance(Class, cls, { excludeExtraneousValues: true }));
   }
 
   /**
    * Create a new class.
+   * @param token 
+   * @param data 
+   * @returns IClass
    */
-  async createClass(data: Partial<IClass>): Promise<IClass> {
-    // Add any business logic or validations here
-    return this.classRepository.create(data);
+  async createClass(token: string, data: Partial<IClass>): Promise<IClass> {
+    const response = await this.axiosInstance.post<IClass>(API_PATHS.CLASS.CREATE_CLASS, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(Class, response.data, { excludeExtraneousValues: true });
   }
 
   /**
-   * Retrieve a class by ID.
+   * Update a class.
+   * @param token 
+   * @param classId 
+   * @param data 
+   * @returns IClass
    */
-  async getClassById(id: string): Promise<IClass> {
-    // Add any business logic before fetching
-    return this.classRepository.getById(id);
+  async updateClass(token: string, classId: string, data: Partial<IClass>): Promise<IClass> {
+    const response = await this.axiosInstance.put<IClass>(`${API_PATHS.CLASS.UPDATE_CLASS}/${classId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(Class, response.data, { excludeExtraneousValues: true });
   }
 
   /**
-   * Retrieve all classes with optional filters.
+   * Delete a class.
+   * @param token 
+   * @param classId 
    */
-  async getAllClasses(params?: Record<string, any>): Promise<IClass[]> {
-    // Add any business logic before fetching
-    return this.classRepository.getAll(params);
+  async deleteClass(token: string, classId: string): Promise<void> {
+    await this.axiosInstance.delete(`${API_PATHS.CLASS.DELETE_CLASS}/${classId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
   }
-
-  /**
-   * Update an existing class.
-   */
-  async updateClass(classEntity: IClass): Promise<IClass> {
-    // Add any business logic or validations before updating
-    return this.classRepository.update(classEntity);
-  }
-
-  /**
-   * Delete a class by ID.
-   */
-  async deleteClass(id: string): Promise<void> {
-    // Add any business logic before deleting
-    return this.classRepository.delete(id);
-  }
-
-  // Add more class-related business methods as needed
 }
+
+export default ClassService;

@@ -96,7 +96,7 @@ export class Student extends BaseModel implements IStudent {
   @IsString()
   updatedAt?: string;
 
-  constructor(partial: Partial<Student>) {
+  constructor(partial?: Partial<Student>) {
     super(partial);
   }
 

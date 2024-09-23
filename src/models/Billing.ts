@@ -46,7 +46,7 @@ export class Billing extends BaseModel implements IBilling {
   @ArrayNotEmpty()
   emails!: string[];
 
-  constructor(partial: Partial<Billing>) {
+  constructor(partial?: Partial<Billing>) {
     super(partial);
   }
 }
