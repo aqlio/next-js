@@ -26,7 +26,7 @@ check_git() {
     fi
 }
 
-# Function to gather files using Git, excluding specific files
+# Function to gather files using Git, excluding specific files and directories
 gather_files_with_git() {
     # Get all tracked files
     tracked_files=$(git ls-files)
@@ -38,11 +38,23 @@ gather_files_with_git() {
     all_files=$(printf "%s\n%s" "$tracked_files" "$untracked_files")
 
     # Define additional exclusions
-    EXCLUDE_ADDITIONAL=("package-lock.json" "favicon.ico")
+    EXCLUDE_ADDITIONAL=("package-lock.json" "favicon.ico" "components/ui/")
 
     # Filter out the additional exclusions
     for exclude in "${EXCLUDE_ADDITIONAL[@]}"; do
-        all_files=$(echo "$all_files" | grep -v -F "$exclude")
+        if [[ "$exclude" == */ ]]; then
+            # Directory exclusion: exclude any file path that contains the directory
+            # Using regex to match 'anypath/components/ui/anyfile'
+            # Escape forward slashes for regex
+            escaped_dir=$(echo "$exclude" | sed 's/\//\\\//g')
+            all_files=$(echo "$all_files" | grep -v -E "(/|^)${escaped_dir}")
+        else
+            # File exclusion: match exact filename anywhere in the path
+            # Using word boundary to ensure exact match
+            # This pattern matches either start of line or a slash before the filename
+            escaped_file=$(echo "$exclude" | sed 's/\//\\\//g')
+            all_files=$(echo "$all_files" | grep -v -E "(/|^)${escaped_file}$")
+        fi
     done
 
     echo "$all_files"
@@ -51,7 +63,7 @@ gather_files_with_git() {
 # Function to gather files without Git (fallback)
 gather_files_without_git() {
     # Define default exclusions (add more if needed)
-    EXCLUDE_DIRS=("node_modules" ".git" "env" "venv" "build" "dist")
+    EXCLUDE_DIRS=("node_modules" ".git" "env" "venv" "build" "dist" "components/ui")
     EXCLUDE_FILES=(
         ".DS_Store"          # macOS specific
         "all_code.txt"      # Output file
