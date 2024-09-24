@@ -1,16 +1,15 @@
 // src/lib/services/AuthService.ts
 
-import IUserLoginRequestData from "@/interfaces/IUserLoginRequestData";
-import IUserLoginResponse from "@/interfaces/IUserLoginResponse";
-import { API_PATHS } from "@/constants/apiConstants";
 import axios, { AxiosInstance } from "axios";
+import { API_PATHS, API_BASE_URL } from "@/constants/apiConstants";
+import IUserLoginResponse from "@/interfaces/IUserLoginResponse";
 
 class AuthService {
   private axiosInstance: AxiosInstance;
 
   constructor() {
     this.axiosInstance = axios.create({
-      baseURL: API_PATHS.AUTH.LOGIN, // Assuming login and signup share the same base URL
+      baseURL: API_BASE_URL,
       headers: {
         "Content-Type": "application/json",
       },
@@ -25,7 +24,7 @@ class AuthService {
    */
   async login(email: string, password: string): Promise<IUserLoginResponse> {
     const response = await this.axiosInstance.post<IUserLoginResponse>(API_PATHS.AUTH.LOGIN, {
-      identifier: email,
+      email,
       password,
     });
     return response.data;

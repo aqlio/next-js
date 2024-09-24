@@ -1,6 +1,6 @@
 "use client";
 
-
+import 'reflect-metadata';
 import { useAuth } from '@/store/hooks';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';

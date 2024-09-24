@@ -97,7 +97,8 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        // Token is already set in loginUser thunk
+        state.token = action.payload.token;
+        // Token is now set in the store
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -110,7 +111,8 @@ const authSlice = createSlice({
       })
       .addCase(signupUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        // Token is already set in signupUser thunk
+        state.token = action.payload.token;
+        // Token is now set in the store
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.isLoading = false;
