@@ -1,20 +1,14 @@
 // src/store/authSlice.ts
 
-import AuthService from "@/Services/AuthService";
-import UserService from "@/Services/UserService";
-import IAuthState from "@/interfaces/IAuthState";
+import IAuthState from "@/lib/interfaces/IAuthState";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import IUserLoginResponse from "@/interfaces/IUserLoginResponse";
-import IUserLoginRequestData from "@/interfaces/IUserLoginRequestData";
-import { getInitialToken, setToken, removeToken } from "@/utils/tokenUtils";
-import { IUserData } from "@/interfaces/IUserData";
-
-const authService = new AuthService();
-const userService = new UserService();
+import IUserLoginRequestData from "@/lib/interfaces/IUserLoginRequestData";
+import { removeToken } from "@/lib/utils/tokenUtils";
+import AuthService from "@/lib/Services/AuthService";
+import UserService from "@/lib/Services/UserService";
 
 const initialState: IAuthState = {
   user: null,
-  token: getInitialToken(),
   isLoading: false,
   error: null,
 };
@@ -23,12 +17,9 @@ export const loginUser = createAsyncThunk(
   "auth/login",
   async ({ email, password }: IUserLoginRequestData, { dispatch, rejectWithValue }) => {
     try {
-      const response: IUserLoginResponse = await authService.login(email, password);
-      if (response.token) {
-        setToken(response.token);
-        dispatch(fetchUserData());
-      }
-      return response;
+      await AuthService.login(email, password);
+      dispatch(fetchUserData());
+      return;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
     }
@@ -39,12 +30,9 @@ export const signupUser = createAsyncThunk(
   "auth/signup",
   async ({ email, password }: IUserLoginRequestData, { dispatch, rejectWithValue }) => {
     try {
-      const response: IUserLoginResponse = await authService.signup(email, password);
-      if (response.token) {
-        setToken(response.token);
-        dispatch(fetchUserData());
-      }
-      return response;
+      await AuthService.signup(email, password);
+      dispatch(fetchUserData());
+      return;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Signup failed");
     }
@@ -53,13 +41,10 @@ export const signupUser = createAsyncThunk(
 
 export const fetchUserData = createAsyncThunk(
   "auth/fetchUserData",
-  async (_, { getState, rejectWithValue }) => {
-    const { auth } = getState() as { auth: IAuthState };
-    if (!auth.token) {
-      return rejectWithValue("No token available");
-    }
+  async (_, { rejectWithValue }) => {
     try {
-      return await userService.getUser(auth.token);
+      const user = await UserService.getUser();
+      return user;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Failed to fetch user data");
     }
@@ -68,10 +53,12 @@ export const fetchUserData = createAsyncThunk(
 
 export const initializeAuth = createAsyncThunk(
   "auth/initialize",
-  async (_, { getState, dispatch }) => {
-    const { auth } = getState() as { auth: IAuthState };
-    if (auth.token && !auth.user) {
-      await dispatch(fetchUserData());
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      await dispatch(fetchUserData()).unwrap();
+    } catch (error: any) {
+      // Optionally handle fetchUserData failure
+      return rejectWithValue(error);
     }
   }
 );
@@ -83,7 +70,6 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.user = null;
-      state.token = null;
       removeToken();
     },
   },
@@ -95,10 +81,9 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(loginUser.fulfilled, (state) => {
         state.isLoading = false;
-        state.token = action.payload.token;
-        // Token is now set in the store
+        // Token is managed via HTTP-only cookies
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -109,10 +94,9 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(signupUser.fulfilled, (state, action) => {
+      .addCase(signupUser.fulfilled, (state) => {
         state.isLoading = false;
-        state.token = action.payload.token;
-        // Token is now set in the store
+        // Token is managed via HTTP-only cookies
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -124,11 +108,12 @@ const authSlice = createSlice({
       })
       .addCase(fetchUserData.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload as IUserData;
+        state.user = action.payload;
       })
       .addCase(fetchUserData.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+        state.user = null;
       })
       // Initialize Auth
       .addCase(initializeAuth.pending, (state) => {
@@ -140,8 +125,7 @@ const authSlice = createSlice({
       })
       .addCase(initializeAuth.rejected, (state, action) => {
         state.isLoading = false;
-        state.token = null;
-        removeToken();
+        state.user = null;
         state.error = action.payload as string;
       });
   },

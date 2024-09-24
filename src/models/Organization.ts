@@ -2,7 +2,7 @@
 import { Expose, Type } from 'class-transformer';
 import { IsBoolean, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { IOrganization } from '../interfaces/IOrganization';
+import { IOrganization } from '../lib/interfaces/IOrganization';
 import { Billing } from './Billing';
 
 export class Organization extends BaseModel implements IOrganization {

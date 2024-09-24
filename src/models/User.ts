@@ -2,7 +2,7 @@
 import { Expose, Type } from 'class-transformer';
 import { IsEmail, IsBoolean, IsOptional, IsString, IsArray } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { IUser } from '../interfaces/IUser';
+import { IUser } from '../lib/interfaces/IUser';
 
 export class User extends BaseModel implements IUser {
   static apiEndpoint = '/users';

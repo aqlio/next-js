@@ -1,3 +1,4 @@
+// src/components/ProtectedRoute.tsx
 "use client";
 
 import { useEffect } from 'react';
@@ -9,16 +10,20 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isLoggedIn } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoggedIn) {
-      router.push('/');
+    if (!isLoading && !user) {
+      router.push('/login');
     }
-  }, [isLoggedIn, router]);
+  }, [isLoading, user, router]);
 
-  return isLoggedIn ? <>{children}</> : null;
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return user ? <>{children}</> : null;
 };
 
 export default ProtectedRoute;

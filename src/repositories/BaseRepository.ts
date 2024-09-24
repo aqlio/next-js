@@ -3,7 +3,7 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { plainToInstance } from "class-transformer";
 import { API_BASE_URL } from "../config/config";
-import { handleApiError } from "../utils/ErrorHandler";
+import { handleApiError } from "../lib/utils/ErrorHandler";
 import { IRepository } from "./IRepository";
 import { BaseModel } from "../models/BaseModel";
 

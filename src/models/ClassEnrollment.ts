@@ -2,7 +2,7 @@
 import { Expose, Type } from 'class-transformer';
 import { IsBoolean, IsOptional, IsString, ValidateNested, IsArray, IsEnum } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { IClassEnrollment } from '../interfaces/IClassEnrollment';
+import { IClassEnrollment } from '../lib/interfaces/IClassEnrollment';
 import { Test } from './Test';
 
 export class ClassEnrollment extends BaseModel implements IClassEnrollment {

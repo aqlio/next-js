@@ -2,7 +2,7 @@
 import { Expose, Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, ValidateNested, IsArray } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { ITest } from '../interfaces/ITest';
+import { ITest } from '../lib/interfaces/ITest';
 
 export class Test extends BaseModel implements ITest {
   static apiEndpoint = '/tests';

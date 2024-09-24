@@ -1,8 +1,8 @@
 // src/store/classSlice.ts
 
-import { IClass } from '@/interfaces/IClass';
-import ClassService from '@/Services/ClassService';
-import { IClassState } from '@/interfaces/IClassState';
+import { IClass } from '@/lib/interfaces/IClass';
+import ClassService from '@/lib/Services/ClassService';
+import { IClassState } from '@/lib/interfaces/IClassState';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 

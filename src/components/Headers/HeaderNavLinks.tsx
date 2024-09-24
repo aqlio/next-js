@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { cn } from "@/utils/utils"
+import { cn } from "@/lib/utils/utils"
 import { usePathname } from "next/navigation"
 import { INavigationItem } from "@/lib/types/INavigationItem"
 import { INavigationProps } from "@/lib/types/INavigationProps"

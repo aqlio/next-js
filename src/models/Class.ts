@@ -2,7 +2,7 @@
 import { Expose, Type } from 'class-transformer';
 import { IsBoolean, IsDateString, IsNumber, IsOptional, IsString, ValidateNested, IsArray } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { IClass } from '../interfaces/IClass';
+import { IClass } from '../lib/interfaces/IClass';
 import { Test } from './Test';
 
 export class Class extends BaseModel implements IClass {

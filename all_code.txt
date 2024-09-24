@@ -105,6 +105,21 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
   }
 }
 
+===== global.d.ts =====
+// global.d.ts
+
+import mongoose from 'mongoose';
+
+declare global {
+  var mongoose: {
+    conn: mongoose.Mongoose | null;
+    promise: Promise<mongoose.Mongoose> | null;
+  };
+}
+
+export {};
+
+
 ===== next.config.mjs =====
 /** @type {import('next').NextConfig} */
 const nextConfig = {};
@@ -140,8 +155,11 @@ export default nextConfig;
     "class-validator": "^0.14.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.429.0",
+    "mongoose": "^8.6.3",
     "next": "14.2.6",
+    "nodemailer": "^6.9.15",
     "react": "^18",
     "react-dom": "^18",
     "react-redux": "^9.1.2",
@@ -182,524 +200,10 @@ export default config;
 [Binary file or inaccessible]
 
 
-===== src/Services/AuthService.ts =====
-// src/lib/services/AuthService.ts
-
-import IUserLoginRequestData from "@/interfaces/IUserLoginRequestData";
-import IUserLoginResponse from "@/interfaces/IUserLoginResponse";
-import { API_PATHS } from "@/constants/apiConstants";
-import axios, { AxiosInstance } from "axios";
-
-class AuthService {
-  private axiosInstance: AxiosInstance;
-
-  constructor() {
-    this.axiosInstance = axios.create({
-      baseURL: API_PATHS.AUTH.LOGIN, // Assuming login and signup share the same base URL
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  /**
-   * Login user with email and password.
-   * @param email 
-   * @param password 
-   * @returns token
-   */
-  async login(email: string, password: string): Promise<IUserLoginResponse> {
-    const response = await this.axiosInstance.post<IUserLoginResponse>(API_PATHS.AUTH.LOGIN, {
-      identifier: email,
-      password,
-    });
-    return response.data;
-  }
-
-  /**
-   * Signup user with email and password.
-   * @param email 
-   * @param password 
-   * @returns token
-   */
-  async signup(email: string, password: string): Promise<IUserLoginResponse> {
-    const response = await this.axiosInstance.post<IUserLoginResponse>(API_PATHS.AUTH.SIGNUP, {
-      email,
-      password,
-    });
-    return response.data;
-  }
-}
-
-export default AuthService;
-
-
-===== src/Services/BillingService.ts =====
-// src/lib/services/BillingService.ts
-
-import { API_PATHS } from "@/constants/apiConstants";
-import { IBilling } from "@/interfaces/IBilling";
-import axios, { AxiosInstance } from "axios";
-import { plainToInstance } from "class-transformer";
-import { Billing } from "@/models/Billing";
-
-class BillingService {
-  private axiosInstance: AxiosInstance;
-
-  constructor() {
-    this.axiosInstance = axios.create({
-      baseURL: API_PATHS.BILLING.GET_BILLINGS, // Adjust the API path accordingly
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  /**
-   * Fetch billing information.
-   * @param token 
-   * @returns IBilling
-   */
-  async getBilling(token: string): Promise<IBilling> {
-    const response = await this.axiosInstance.get<IBilling>(API_PATHS.BILLING.GET_BILLINGS, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(Billing, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Update billing information.
-   * @param token 
-   * @param data 
-   * @returns IBilling
-   */
-  async updateBilling(token: string, data: Partial<IBilling>): Promise<IBilling> {
-    const response = await this.axiosInstance.put<IBilling>(API_PATHS.BILLING.UPDATE_BILLINGS, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(Billing, response.data, { excludeExtraneousValues: true });
-  }
-}
-
-export default BillingService;
-
-
-===== src/Services/ClassEnrollmentService.ts =====
-// src/lib/services/ClassEnrollmentService.ts
-
-import { API_PATHS } from "@/constants/apiConstants";
-import { IClassEnrollment } from "@/interfaces/IClassEnrollment";
-import axios, { AxiosInstance } from "axios";
-import { plainToInstance } from "class-transformer";
-import { ClassEnrollment } from "@/models/ClassEnrollment";
-
-class ClassEnrollmentService {
-  private axiosInstance: AxiosInstance;
-
-  constructor() {
-    this.axiosInstance = axios.create({
-      baseURL: API_PATHS.CLASS.ENROLLMENTS, // Adjust the API path accordingly
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  /**
-   * Fetch all class enrollments with optional filters.
-   * @param token 
-   * @param params 
-   * @returns IClassEnrollment[]
-   */
-  async getEnrollments(token: string, params?: Record<string, any>): Promise<IClassEnrollment[]> {
-    const response = await this.axiosInstance.get<IClassEnrollment[]>(API_PATHS.CLASS.ENROLLMENTS, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params,
-    });
-    return response.data.map(enrollment => plainToInstance(ClassEnrollment, enrollment, { excludeExtraneousValues: true }));
-  }
-
-  /**
-   * Create a new class enrollment.
-   * @param token 
-   * @param data 
-   * @returns IClassEnrollment
-   */
-  async createEnrollment(token: string, data: Partial<IClassEnrollment>): Promise<IClassEnrollment> {
-    const response = await this.axiosInstance.post<IClassEnrollment>(API_PATHS.CLASS.ENROLLMENTS, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(ClassEnrollment, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Update a class enrollment.
-   * @param token 
-   * @param enrollmentId 
-   * @param data 
-   * @returns IClassEnrollment
-   */
-  async updateEnrollment(token: string, enrollmentId: string, data: Partial<IClassEnrollment>): Promise<IClassEnrollment> {
-    const response = await this.axiosInstance.put<IClassEnrollment>(`${API_PATHS.CLASS.ENROLLMENTS}/${enrollmentId}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(ClassEnrollment, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Delete a class enrollment.
-   * @param token 
-   * @param enrollmentId 
-   */
-  async deleteEnrollment(token: string, enrollmentId: string): Promise<void> {
-    await this.axiosInstance.delete(`${API_PATHS.CLASS.ENROLLMENTS}/${enrollmentId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
-}
-
-export default ClassEnrollmentService;
-
-
-===== src/Services/ClassService.ts =====
-// src/lib/services/ClassService.ts
-
-import { API_PATHS } from "@/constants/apiConstants";
-import { IClass } from "@/interfaces/IClass";
-import axios, { AxiosInstance } from "axios";
-import { plainToInstance } from "class-transformer";
-import { Class } from "@/models/Class";
-
-class ClassService {
-  private axiosInstance: AxiosInstance;
-
-  constructor() {
-    this.axiosInstance = axios.create({
-      baseURL: API_PATHS.CLASS.GET_CLASSES, // Adjust the API path accordingly
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  /**
-   * Fetch all classes with optional filters.
-   * @param token 
-   * @param params 
-   * @returns IClass[]
-   */
-  async getClasses(token: string, params?: Record<string, any>): Promise<IClass[]> {
-    const response = await this.axiosInstance.get<IClass[]>(API_PATHS.CLASS.GET_CLASSES, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params,
-    });
-    return response.data.map(cls => plainToInstance(Class, cls, { excludeExtraneousValues: true }));
-  }
-
-  /**
-   * Create a new class.
-   * @param token 
-   * @param data 
-   * @returns IClass
-   */
-  async createClass(token: string, data: Partial<IClass>): Promise<IClass> {
-    const response = await this.axiosInstance.post<IClass>(API_PATHS.CLASS.CREATE_CLASS, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(Class, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Update a class.
-   * @param token 
-   * @param classId 
-   * @param data 
-   * @returns IClass
-   */
-  async updateClass(token: string, classId: string, data: Partial<IClass>): Promise<IClass> {
-    const response = await this.axiosInstance.put<IClass>(`${API_PATHS.CLASS.UPDATE_CLASS}/${classId}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(Class, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Delete a class.
-   * @param token 
-   * @param classId 
-   */
-  async deleteClass(token: string, classId: string): Promise<void> {
-    await this.axiosInstance.delete(`${API_PATHS.CLASS.DELETE_CLASS}/${classId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
-}
-
-export default ClassService;
-
-
-===== src/Services/LectureService.ts =====
-// src/lib/services/LectureService.ts
-
-import { API_PATHS } from "@/constants/apiConstants";
-import { ILecture } from "@/interfaces/ILecture";
-import axios, { AxiosInstance } from "axios";
-import { plainToInstance } from "class-transformer";
-import { Lecture } from "@/models/Lecture";
-
-class LectureService {
-  private axiosInstance: AxiosInstance;
-
-  constructor() {
-    this.axiosInstance = axios.create({
-      baseURL: API_PATHS.LECTURE.GET_LECTURES, // Adjust the API path accordingly
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  /**
-   * Fetch all lectures with optional filters.
-   * @param token 
-   * @param params 
-   * @returns ILecture[]
-   */
-  async getLectures(token: string, params?: Record<string, any>): Promise<ILecture[]> {
-    const response = await this.axiosInstance.get<ILecture[]>(API_PATHS.LECTURE.GET_LECTURES, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params,
-    });
-    return response.data.map(lecture => plainToInstance(Lecture, lecture, { excludeExtraneousValues: true }));
-  }
-
-  /**
-   * Create a new lecture.
-   * @param token 
-   * @param data 
-   * @returns ILecture
-   */
-  async createLecture(token: string, data: Partial<ILecture>): Promise<ILecture> {
-    const response = await this.axiosInstance.post<ILecture>(API_PATHS.LECTURE.CREATE_LECTURE, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(Lecture, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Update a lecture.
-   * @param token 
-   * @param lectureId 
-   * @param data 
-   * @returns ILecture
-   */
-  async updateLecture(token: string, lectureId: string, data: Partial<ILecture>): Promise<ILecture> {
-    const response = await this.axiosInstance.put<ILecture>(`${API_PATHS.LECTURE.UPDATE_LECTURE}/${lectureId}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(Lecture, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Delete a lecture.
-   * @param token 
-   * @param lectureId 
-   */
-  async deleteLecture(token: string, lectureId: string): Promise<void> {
-    await this.axiosInstance.delete(`${API_PATHS.LECTURE.DELETE_LECTURE}/${lectureId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
-}
-
-export default LectureService;
-
-
-===== src/Services/StudentService.ts =====
-// src/lib/services/StudentService.ts
-
-import { API_PATHS } from "@/constants/apiConstants";
-import { IStudent } from "@/interfaces/IStudent";
-import axios, { AxiosInstance } from "axios";
-import { plainToInstance } from "class-transformer";
-import { Student } from "@/models/Student";
-
-class StudentService {
-  private axiosInstance: AxiosInstance;
-
-  constructor() {
-    this.axiosInstance = axios.create({
-      baseURL: API_PATHS.STUDENT.GET_STUDENT, // Adjust the API path accordingly
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  /**
-   * Fetch all students with optional filters.
-   * @param token 
-   * @param params 
-   * @returns IStudent[]
-   */
-  async getStudents(token: string, params?: Record<string, any>): Promise<IStudent[]> {
-    const response = await this.axiosInstance.get<IStudent[]>(API_PATHS.STUDENT.GET_STUDENT, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params,
-    });
-    return response.data.map(student => plainToInstance(Student, student, { excludeExtraneousValues: true }));
-  }
-
-  /**
-   * Create a new student.
-   * @param token 
-   * @param data 
-   * @returns IStudent
-   */
-  async createStudent(token: string, data: Partial<IStudent>): Promise<IStudent> {
-    const response = await this.axiosInstance.post<IStudent>(API_PATHS.STUDENT.GET_STUDENT, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(Student, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Update a student.
-   * @param token 
-   * @param studentId 
-   * @param data 
-   * @returns IStudent
-   */
-  async updateStudent(token: string, studentId: string, data: Partial<IStudent>): Promise<IStudent> {
-    const response = await this.axiosInstance.put<IStudent>(`${API_PATHS.STUDENT.GET_STUDENT}/${studentId}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(Student, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Delete a student.
-   * @param token 
-   * @param studentId 
-   */
-  async deleteStudent(token: string, studentId: string): Promise<void> {
-    await this.axiosInstance.delete(`${API_PATHS.STUDENT.GET_STUDENT}/${studentId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
-}
-
-export default StudentService;
-
-
-===== src/Services/UserService.ts =====
-// src/lib/services/UserService.ts
-
-import { API_PATHS } from "@/constants/apiConstants";
-import { IUser } from "@/interfaces/IUser";
-import axios, { AxiosInstance } from "axios";
-import { plainToInstance } from "class-transformer";
-import { User } from "@/models/User";
-
-class UserService {
-  private axiosInstance: AxiosInstance;
-
-  constructor() {
-    this.axiosInstance = axios.create({
-      baseURL: API_PATHS.USER.GET_USER,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
-  /**
-   * Fetch user data.
-   * @param token 
-   * @returns IUser
-   */
-  async getUser(token: string): Promise<IUser> {
-    const response = await this.axiosInstance.get<IUser>(API_PATHS.USER.GET_USER, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(User, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Update user data.
-   * @param token 
-   * @param userId 
-   * @param data 
-   * @returns IUser
-   */
-  async updateUser(token: string, userId: string, data: Partial<IUser>): Promise<IUser> {
-    const response = await this.axiosInstance.put<IUser>(`${API_PATHS.USER.GET_USER}/${userId}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return plainToInstance(User, response.data, { excludeExtraneousValues: true });
-  }
-
-  /**
-   * Delete user.
-   * @param token 
-   * @param userId 
-   */
-  async deleteUser(token: string, userId: string): Promise<void> {
-    await this.axiosInstance.delete(`${API_PATHS.USER.GET_USER}/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  }
-}
-
-export default UserService;
-
-
 ===== src/app/(auth-page)/layout.tsx =====
 "use client";
 
-
+import 'reflect-metadata';
 import { useAuth } from '@/store/hooks';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -1587,6 +1091,378 @@ export default function AboutPage() {
     );
 }
 
+===== src/app/api/auth/login/route.ts =====
+// src/app/api/auth/login/route.ts
+
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/mongoose';
+import User from '@/lib/models/User';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { prepareError } from '@/lib/utils/errorHandler';
+import { IUser } from '@/lib/interfaces/IUser';
+
+export async function POST(request: NextRequest) {
+  await dbConnect();
+
+  const { email, password } = await request.json();
+
+  // Validate input
+  if (!email || !password) {
+    return NextResponse.json(
+      { error: { code: 'invalid_input', message: 'Email and password are required.' } },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (user) {
+      if (user.provider !== 'local') {
+        return NextResponse.json(
+          { error: { code: 'invalid_provider', message: 'Invalid provider.' } },
+          { status: 400 }
+        );
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.hashedPassword || '');
+
+      if (!isPasswordValid) {
+        return NextResponse.json(
+          { error: { code: 'invalid_credentials', message: 'Invalid credentials.' } },
+          { status: 400 }
+        );
+      }
+
+      // Generate JWT Token
+      const token = jwt.sign(
+        { id: user._id, email: user.email, roles: user.roles },
+        process.env.JWT_SECRET as string,
+        { expiresIn: '7d' }
+      );
+
+      // Optionally, set HTTP-only cookie
+      const response = NextResponse.json({ token }, { status: 200 });
+      response.cookies.set({
+        name: 'token',
+        value: token,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      });
+
+      return response;
+    } else {
+      // If user doesn't exist, create a new one (local signup)
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      const newUser = new User({
+        email,
+        roles: ['owner'],
+        provider: 'local',
+        hashedPassword,
+        emailVerified: false,
+        emailConfirmToken: crypto.randomBytes(16).toString('hex'),
+      });
+
+      await newUser.save();
+
+      // TODO: Send Email Verification
+      // Implement mail sending using your mail utility
+
+      // Generate JWT Token
+      const token = jwt.sign(
+        { id: newUser._id, email: newUser.email, roles: newUser.roles },
+        process.env.JWT_SECRET as string,
+        { expiresIn: '7d' }
+      );
+
+      const response = NextResponse.json({ token }, { status: 201 });
+      response.cookies.set({
+        name: 'token',
+        value: token,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      });
+
+      return response;
+    }
+  } catch (error: any) {
+    console.error('Error during login/signup:', error);
+    return NextResponse.json(
+      { error: { code: 'internal_error', message: 'Internal server error.' } },
+      { status: 500 }
+    );
+  }
+}
+
+
+===== src/app/api/classes/[class_id]/student/[student_id]/route.ts =====
+// src/app/api/classes/[class_id]/student/[student_id]/route.ts
+
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/mongoose';
+import Class from '@/lib/models/Class';
+import User from '@/lib/models/User';
+import Student from '@/lib/models/Student';
+import ClassEnrollment from '@/lib/models/ClassEnrollment';
+import { prepareError } from '@/lib/utils/errorHandler';
+import { authorize } from '@/lib/middleware/auth';
+import { prepareEnrollmentData } from '@/lib/utils/classEnrollment';
+
+export async function POST(request: NextRequest, { params }: { params: { class_id: string; student_id: string } }) {
+  await dbConnect();
+
+  // Authorization
+  const authResponse = await authorize(request);
+  if (!authResponse.isAuthorized) {
+    return NextResponse.json(authResponse.error, { status: 403 });
+  }
+
+  const { class_id, student_id } = params;
+
+  try {
+    // Verify Class Exists
+    const classDoc = await Class.findOne({ _id: class_id, orgId: authResponse.user.orgId, deleted: false });
+    if (!classDoc) {
+      return NextResponse.json(
+        { error: { code: 'class_not_found', message: 'Class not found.' } },
+        { status: 404 }
+      );
+    }
+
+    // Verify Student Exists
+    const student = await Student.findOne({ _id: student_id, orgId: authResponse.user.orgId, deleted: false });
+    if (!student) {
+      return NextResponse.json(
+        { error: { code: 'student_not_found', message: 'Student not found.' } },
+        { status: 404 }
+      );
+    }
+
+    // Check if Enrollment Already Exists
+    const existingEnrollment = await ClassEnrollment.findOne({ classId: class_id, studentId: student_id, deleted: false });
+    if (existingEnrollment) {
+      return NextResponse.json(
+        await prepareEnrollmentData(existingEnrollment),
+        { status: 200 }
+      );
+    }
+
+    // Create Enrollment
+    const enrollment = new ClassEnrollment({
+      classId: class_id,
+      studentId: student_id,
+      orgId: authResponse.user.orgId,
+      createdBy: authResponse.user._id,
+    });
+
+    await enrollment.save();
+
+    const preparedEnrollment = await prepareEnrollmentData(enrollment);
+
+    return NextResponse.json(preparedEnrollment, { status: 201 });
+  } catch (error: any) {
+    console.error('Error enrolling student:', error);
+    return NextResponse.json(
+      { error: { code: 'internal_error', message: 'Internal server error.' } },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: { class_id: string; student_id: string } }) {
+  await dbConnect();
+
+  // Authorization
+  const authResponse = await authorize(request);
+  if (!authResponse.isAuthorized) {
+    return NextResponse.json(authResponse.error, { status: 403 });
+  }
+
+  const { class_id, student_id } = params;
+
+  try {
+    // Find Enrollment
+    const enrollment = await ClassEnrollment.findOne({ classId: class_id, studentId: student_id, deleted: false });
+    if (!enrollment) {
+      return NextResponse.json(
+        { error: { code: 'enrollment_not_found', message: 'Enrollment not found.' } },
+        { status: 404 }
+      );
+    }
+
+    // Mark as Deleted
+    enrollment.deleted = true;
+    enrollment.deletedBy = authResponse.user._id;
+    await enrollment.save();
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error: any) {
+    console.error('Error unenrolling student:', error);
+    return NextResponse.json(
+      { error: { code: 'internal_error', message: 'Internal server error.' } },
+      { status: 500 }
+    );
+  }
+}
+
+
+===== src/app/api/classes/route.ts =====
+// src/app/api/classes/route.ts
+
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/mongoose';
+import Class from '@/lib/models/Class';
+import User from '@/lib/models/User';
+import { prepareError } from '@/lib/utils/errorHandler';
+import { authorize } from '@/lib/middleware/auth';
+import { IClass } from '@/lib/interfaces/IClass';
+import { prepareClassData } from '@/lib/utils/class';
+
+export async function POST(request: NextRequest) {
+  await dbConnect();
+
+  // Authorization
+  const authResponse = await authorize(request);
+  if (!authResponse.isAuthorized) {
+    return NextResponse.json(authResponse.error, { status: 403 });
+  }
+
+  const { name, description, teacher_id, class_code } = await request.json();
+
+  // Input Validation
+  if (!name || !teacher_id || !class_code) {
+    return NextResponse.json(
+      { error: { code: 'invalid_input', message: 'Name, teacher_id, and class_code are required.' } },
+      { status: 400 }
+    );
+  }
+
+  try {
+    // Check if class_code already exists
+    const existingClass = await Class.findOne({ classCode: class_code, orgId: authResponse.user.orgId });
+
+    if (existingClass) {
+      return NextResponse.json(
+        { error: { code: 'class_code_already_exists', message: 'Class code already exists.' } },
+        { status: 400 }
+      );
+    }
+
+    // Verify Teacher Exists
+    const teacher = await User.findById(teacher_id);
+
+    if (!teacher || !teacher.roles.includes('teacher')) {
+      return NextResponse.json(
+        { error: { code: 'invalid_teacher', message: 'Invalid teacher_id.' } },
+        { status: 400 }
+      );
+    }
+
+    // Create New Class
+    const newClass: IClass = {
+      title: name,
+      description,
+      classCode: class_code,
+      orgId: authResponse.user.orgId,
+      teacherId: teacher_id,
+      time: new Date(),
+      durationInSeconds: 3600, // Example duration
+      tests: [],
+      deleted: false,
+    };
+
+    const classDoc = new Class(newClass);
+    await classDoc.save();
+
+    const preparedData = await prepareClassData(classDoc);
+
+    return NextResponse.json(preparedData, { status: 201 });
+  } catch (error: any) {
+    console.error('Error creating class:', error);
+    return NextResponse.json(
+      { error: { code: 'internal_error', message: 'Internal server error.' } },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest) {
+  await dbConnect();
+
+  // Authorization
+  const authResponse = await authorize(request);
+  if (!authResponse.isAuthorized) {
+    return NextResponse.json(authResponse.error, { status: 403 });
+  }
+
+  try {
+    const classes = await Class.find({ orgId: authResponse.user.orgId, deleted: false }).populate('teacherId');
+
+    const preparedClassesData = await Promise.all(classes.map(prepareClassData));
+
+    return NextResponse.json({ data: preparedClassesData }, { status: 200 });
+  } catch (error: any) {
+    console.error('Error fetching classes:', error);
+    return NextResponse.json(
+      { error: { code: 'internal_error', message: 'Internal server error.' } },
+      { status: 500 }
+    );
+  }
+}
+
+
+===== src/app/api/user/route.ts =====
+// src/app/api/user/route.ts
+
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/mongoose';
+import User from '@/lib/models/User';
+import { authorize } from '@/lib/middleware/auth';
+import { prepareError } from '@/lib/utils/errorHandler';
+
+export async function GET(request: NextRequest) {
+  await dbConnect();
+
+  // Authorization
+  const authResponse = await authorize(request);
+  if (!authResponse.isAuthorized) {
+    return NextResponse.json(authResponse.error, { status: 403 });
+  }
+
+  try {
+    const user = await User.findById(authResponse.user._id).select('-hashedPassword -salt');
+
+    if (!user) {
+      return NextResponse.json(
+        { error: { code: 'user_not_found', message: 'User not found.' } },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ data: user }, { status: 200 });
+  } catch (error: any) {
+    console.error('Error fetching user data:', error);
+    return NextResponse.json(
+      { error: { code: 'internal_error', message: 'Internal server error.' } },
+      { status: 500 }
+    );
+  }
+}
+
+
 ===== src/app/globals.css =====
 @tailwind base;
 @tailwind components;
@@ -1860,7 +1736,7 @@ export default Footer;
 
 ===== src/components/Headers/HeaderNavLinks.tsx =====
 import Link from "next/link"
-import { cn } from "@/utils/utils"
+import { cn } from "@/lib/utils/utils"
 import { usePathname } from "next/navigation"
 import { INavigationItem } from "@/lib/types/INavigationItem"
 import { INavigationProps } from "@/lib/types/INavigationProps"
@@ -1984,7 +1860,7 @@ export default Logo;
 ===== src/components/Navigations/LeftNavigation.tsx =====
 import React from 'react'
 import Link from "next/link"
-import { cn } from "@/utils/utils"
+import { cn } from "@/lib/utils/utils"
 import Logo from "@/components/Logo"
 import { MenuIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
@@ -2134,48 +2010,547 @@ export const navigationItems: INavigationItem[] = [
     { name: 'About', icon: Info, href: '/about' }, // Add this line
 ]
 
-===== src/constants/apiConstants.ts =====
-// src/constants/apiConstants.ts
+===== src/lib/Services/AuthService.ts =====
+// src/lib/services/AuthService.ts
 
-export const API_BASE_URL = 'https://api.aqlio.com'; // Update this to your actual API base URL
+import axios, { AxiosInstance } from "axios";
+import { API_PATHS } from "@/lib/constants/apiConstants";
+import IUserLoginResponse from "@/lib/interfaces/IUserLoginResponse";
+
+class AuthService {
+  private axiosInstance: AxiosInstance;
+
+  constructor() {
+    this.axiosInstance = axios.create({
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  /**
+   * Login user with email and password.
+   * @param email 
+   * @param password 
+   * @returns token
+   */
+  async login(email: string, password: string): Promise<IUserLoginResponse> {
+    const response = await this.axiosInstance.post<IUserLoginResponse>(API_PATHS.AUTH.LOGIN, {
+      email,
+      password,
+    });
+    return response.data;
+  }
+
+  /**
+   * Signup user with email and password.
+   * @param email 
+   * @param password 
+   * @returns token
+   */
+  async signup(email: string, password: string): Promise<IUserLoginResponse> {
+    const response = await this.axiosInstance.post<IUserLoginResponse>(API_PATHS.AUTH.SIGNUP, {
+      email,
+      password,
+    });
+    return response.data;
+  }
+}
+
+export default AuthService;
+
+
+===== src/lib/Services/BillingService.ts =====
+// src/lib/services/BillingService.ts
+
+import { API_PATHS } from "@/lib/constants/apiConstants";
+import { IBilling } from "@/lib/interfaces/IBilling";
+import axios, { AxiosInstance } from "axios";
+import { plainToInstance } from "class-transformer";
+import { Billing } from "@/models/Billing";
+
+class BillingService {
+  private axiosInstance: AxiosInstance;
+
+  constructor() {
+    this.axiosInstance = axios.create({
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  /**
+   * Fetch billing information.
+   * @param token 
+   * @returns IBilling
+   */
+  async getBilling(token: string): Promise<IBilling> {
+    const response = await this.axiosInstance.get<IBilling>(API_PATHS.BILLING.GET_BILLINGS, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(Billing, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Update billing information.
+   * @param token 
+   * @param data 
+   * @returns IBilling
+   */
+  async updateBilling(token: string, data: Partial<IBilling>): Promise<IBilling> {
+    const response = await this.axiosInstance.put<IBilling>(API_PATHS.BILLING.UPDATE_BILLINGS, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(Billing, response.data, { excludeExtraneousValues: true });
+  }
+}
+
+export default BillingService;
+
+
+===== src/lib/Services/ClassEnrollmentService.ts =====
+// src/lib/services/ClassEnrollmentService.ts
+
+import { API_PATHS } from "@/lib/constants/apiConstants";
+import { IClassEnrollment } from "@/lib/interfaces/IClassEnrollment";
+import axios, { AxiosInstance } from "axios";
+import { plainToInstance } from "class-transformer";
+import { ClassEnrollment } from "@/models/ClassEnrollment";
+
+class ClassEnrollmentService {
+  private axiosInstance: AxiosInstance;
+
+  constructor() {
+    this.axiosInstance = axios.create({
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  /**
+   * Fetch all class enrollments with optional filters.
+   * @param token 
+   * @param params 
+   * @returns IClassEnrollment[]
+   */
+  async getEnrollments(token: string, params?: Record<string, any>): Promise<IClassEnrollment[]> {
+    const response = await this.axiosInstance.get<IClassEnrollment[]>(API_PATHS.CLASS.ENROLLMENTS, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params,
+    });
+    return response.data.map(enrollment => plainToInstance(ClassEnrollment, enrollment, { excludeExtraneousValues: true }));
+  }
+
+  /**
+   * Create a new class enrollment.
+   * @param token 
+   * @param data 
+   * @returns IClassEnrollment
+   */
+  async createEnrollment(token: string, data: Partial<IClassEnrollment>): Promise<IClassEnrollment> {
+    const response = await this.axiosInstance.post<IClassEnrollment>(API_PATHS.CLASS.ENROLLMENTS, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(ClassEnrollment, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Update a class enrollment.
+   * @param token 
+   * @param enrollmentId 
+   * @param data 
+   * @returns IClassEnrollment
+   */
+  async updateEnrollment(token: string, enrollmentId: string, data: Partial<IClassEnrollment>): Promise<IClassEnrollment> {
+    const response = await this.axiosInstance.put<IClassEnrollment>(`${API_PATHS.CLASS.ENROLLMENTS}/${enrollmentId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(ClassEnrollment, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Delete a class enrollment.
+   * @param token 
+   * @param enrollmentId 
+   */
+  async deleteEnrollment(token: string, enrollmentId: string): Promise<void> {
+    await this.axiosInstance.delete(`${API_PATHS.CLASS.ENROLLMENTS}/${enrollmentId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+}
+
+export default ClassEnrollmentService;
+
+
+===== src/lib/Services/ClassService.ts =====
+// src/lib/services/ClassService.ts
+
+import { API_PATHS } from "@/lib/constants/apiConstants";
+import { IClass } from "@/lib/interfaces/IClass";
+import axios, { AxiosInstance } from "axios";
+import { plainToInstance } from "class-transformer";
+import { Class } from "@/models/Class";
+
+class ClassService {
+  private axiosInstance: AxiosInstance;
+
+  constructor() {
+    this.axiosInstance = axios.create({
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  /**
+   * Fetch all classes with optional filters.
+   * @param token 
+   * @param params 
+   * @returns IClass[]
+   */
+  async getClasses(token: string, params?: Record<string, any>): Promise<IClass[]> {
+    const response = await this.axiosInstance.get<IClass[]>(API_PATHS.CLASS.GET_CLASSES, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params,
+    });
+    return response.data.map(cls => plainToInstance(Class, cls, { excludeExtraneousValues: true }));
+  }
+
+  /**
+   * Create a new class.
+   * @param token 
+   * @param data 
+   * @returns IClass
+   */
+  async createClass(token: string, data: Partial<IClass>): Promise<IClass> {
+    const response = await this.axiosInstance.post<IClass>(API_PATHS.CLASS.CREATE_CLASS, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(Class, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Update a class.
+   * @param token 
+   * @param classId 
+   * @param data 
+   * @returns IClass
+   */
+  async updateClass(token: string, classId: string, data: Partial<IClass>): Promise<IClass> {
+    const response = await this.axiosInstance.put<IClass>(`${API_PATHS.CLASS.UPDATE_CLASS}/${classId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(Class, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Delete a class.
+   * @param token 
+   * @param classId 
+   */
+  async deleteClass(token: string, classId: string): Promise<void> {
+    await this.axiosInstance.delete(`${API_PATHS.CLASS.DELETE_CLASS}/${classId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+}
+
+export default ClassService;
+
+
+===== src/lib/Services/LectureService.ts =====
+// src/lib/services/LectureService.ts
+
+import { API_PATHS } from "@/lib/constants/apiConstants";
+import { ILecture } from "@/lib/interfaces/ILecture";
+import axios, { AxiosInstance } from "axios";
+import { plainToInstance } from "class-transformer";
+import { Lecture } from "@/models/Lecture";
+
+class LectureService {
+  private axiosInstance: AxiosInstance;
+
+  constructor() {
+    this.axiosInstance = axios.create({
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  /**
+   * Fetch all lectures with optional filters.
+   * @param token 
+   * @param params 
+   * @returns ILecture[]
+   */
+  async getLectures(token: string, params?: Record<string, any>): Promise<ILecture[]> {
+    const response = await this.axiosInstance.get<ILecture[]>(API_PATHS.LECTURE.GET_LECTURES, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params,
+    });
+    return response.data.map(lecture => plainToInstance(Lecture, lecture, { excludeExtraneousValues: true }));
+  }
+
+  /**
+   * Create a new lecture.
+   * @param token 
+   * @param data 
+   * @returns ILecture
+   */
+  async createLecture(token: string, data: Partial<ILecture>): Promise<ILecture> {
+    const response = await this.axiosInstance.post<ILecture>(API_PATHS.LECTURE.CREATE_LECTURE, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(Lecture, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Update a lecture.
+   * @param token 
+   * @param lectureId 
+   * @param data 
+   * @returns ILecture
+   */
+  async updateLecture(token: string, lectureId: string, data: Partial<ILecture>): Promise<ILecture> {
+    const response = await this.axiosInstance.put<ILecture>(`${API_PATHS.LECTURE.UPDATE_LECTURE}/${lectureId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(Lecture, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Delete a lecture.
+   * @param token 
+   * @param lectureId 
+   */
+  async deleteLecture(token: string, lectureId: string): Promise<void> {
+    await this.axiosInstance.delete(`${API_PATHS.LECTURE.DELETE_LECTURE}/${lectureId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+}
+
+export default LectureService;
+
+
+===== src/lib/Services/StudentService.ts =====
+// src/lib/services/StudentService.ts
+
+import { API_PATHS } from "@/lib/constants/apiConstants";
+import { IStudent } from "@/lib/interfaces/IStudent";
+import axios, { AxiosInstance } from "axios";
+import { plainToInstance } from "class-transformer";
+import { Student } from "@/models/Student";
+
+class StudentService {
+  private axiosInstance: AxiosInstance;
+
+  constructor() {
+    this.axiosInstance = axios.create({
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  /**
+   * Fetch all students with optional filters.
+   * @param token 
+   * @param params 
+   * @returns IStudent[]
+   */
+  async getStudents(token: string, params?: Record<string, any>): Promise<IStudent[]> {
+    const response = await this.axiosInstance.get<IStudent[]>(API_PATHS.STUDENT.GET_STUDENT, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params,
+    });
+    return response.data.map(student => plainToInstance(Student, student, { excludeExtraneousValues: true }));
+  }
+
+  /**
+   * Create a new student.
+   * @param token 
+   * @param data 
+   * @returns IStudent
+   */
+  async createStudent(token: string, data: Partial<IStudent>): Promise<IStudent> {
+    const response = await this.axiosInstance.post<IStudent>(API_PATHS.STUDENT.GET_STUDENT, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(Student, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Update a student.
+   * @param token 
+   * @param studentId 
+   * @param data 
+   * @returns IStudent
+   */
+  async updateStudent(token: string, studentId: string, data: Partial<IStudent>): Promise<IStudent> {
+    const response = await this.axiosInstance.put<IStudent>(`${API_PATHS.STUDENT.GET_STUDENT}/${studentId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(Student, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Delete a student.
+   * @param token 
+   * @param studentId 
+   */
+  async deleteStudent(token: string, studentId: string): Promise<void> {
+    await this.axiosInstance.delete(`${API_PATHS.STUDENT.GET_STUDENT}/${studentId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+}
+
+export default StudentService;
+
+
+===== src/lib/Services/UserService.ts =====
+// src/lib/services/UserService.ts
+
+import { API_PATHS } from "@/lib/constants/apiConstants";
+import { IUser } from "@/lib/interfaces/IUser";
+import axios, { AxiosInstance } from "axios";
+import { plainToInstance } from "class-transformer";
+import { User } from "@/models/User";
+
+class UserService {
+  private axiosInstance: AxiosInstance;
+
+  constructor() {
+    this.axiosInstance = axios.create({
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  /**
+   * Fetch user data.
+   * @param token 
+   * @returns IUser
+   */
+  async getUser(token: string): Promise<IUser> {
+    const response = await this.axiosInstance.get<IUser>(API_PATHS.USER.GET_USER, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(User, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Update user data.
+   * @param token 
+   * @param userId 
+   * @param data 
+   * @returns IUser
+   */
+  async updateUser(token: string, userId: string, data: Partial<IUser>): Promise<IUser> {
+    const response = await this.axiosInstance.put<IUser>(`${API_PATHS.USER.GET_USER}/${userId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return plainToInstance(User, response.data, { excludeExtraneousValues: true });
+  }
+
+  /**
+   * Delete user.
+   * @param token 
+   * @param userId 
+   */
+  async deleteUser(token: string, userId: string): Promise<void> {
+    await this.axiosInstance.delete(`${API_PATHS.USER.GET_USER}/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+}
+
+export default UserService;
+
+
+===== src/lib/constants/apiConstants.ts =====
+export const API_BASE_URL = '/api';
 
 export const API_PATHS = {
   AUTH: {
-    LOGIN: '/auth/local',
-    SIGNUP: '/auth/local',
+    LOGIN: `${API_BASE_URL}/auth/login`,
+    SIGNUP: `${API_BASE_URL}/auth/signup`,
+    VERIFY_EMAIL: (token: string) => `${API_BASE_URL}/auth/verifyEmail/${token}`,
+    // Add other auth-related paths
   },
   USER: {
-    GET_USER: '/users',
-    UPDATE_USER: '/users',
-    DELETE_USER: '/users',
+    GET_USER: `${API_BASE_URL}/user`,
+    // Add other user-related paths
   },
   STUDENT: {
-    GET_STUDENT: '/students',
-    CREATE_STUDENT: '/students',
-    UPDATE_STUDENT: '/students',
-    DELETE_STUDENT: '/students',
+    GET_STUDENT: `${API_BASE_URL}/students`,
+    CREATE_STUDENT: `${API_BASE_URL}/students`,
+    REGENERATE_PASSWORD: (student_id: string) => `${API_BASE_URL}/students/${student_id}/regeneratePassword`,
+    // Add other student-related paths
   },
   CLASS: {
-    GET_CLASSES: '/classes',
-    CREATE_CLASS: '/classes',
-    UPDATE_CLASS: '/classes',
-    DELETE_CLASS: '/classes',
-    ENROLLMENTS: '/enrollments', // Adjust as per your API structure
+    GET_CLASSES: `${API_BASE_URL}/classes`,
+    CREATE_CLASS: `${API_BASE_URL}/classes`,
+    UPDATE_CLASS: (class_id: string) => `${API_BASE_URL}/classes/${class_id}`,
+    DELETE_CLASS: (class_id: string) => `${API_BASE_URL}/classes/${class_id}`,
+    ENROLL_STUDENT: (class_id: string, student_id: string) => `${API_BASE_URL}/classes/${class_id}/student/${student_id}`,
+    UNENROLL_STUDENT: (class_id: string, student_id: string) => `${API_BASE_URL}/classes/${class_id}/student/${student_id}`,
+    GET_STUDENTS_IN_CLASS: (class_id: string) => `${API_BASE_URL}/classes/${class_id}/student`,
+    // Add other class-related paths
   },
-  LECTURE: {
-    GET_LECTURES: '/lectures',
-    CREATE_LECTURE: '/lectures',
-    UPDATE_LECTURE: '/lectures',
-    DELETE_LECTURE: '/lectures',
-  },
-  BILLING: {
-    GET_BILLINGS: '/billings',
-    UPDATE_BILLINGS: '/billings',
-  },
+  // Add other API categories...
 };
 
 
-===== src/interfaces/IAuthState.ts =====
+===== src/lib/interfaces/IAuthState.ts =====
 import { IUserData } from "./IUserData";
 
 export default interface IAuthState {
@@ -2186,7 +2561,7 @@ export default interface IAuthState {
 }
 
 
-===== src/interfaces/IBilling.ts =====
+===== src/lib/interfaces/IBilling.ts =====
 // src/interfaces/IBilling.ts
 export interface IBilling {
     name: string;
@@ -2202,7 +2577,7 @@ export interface IBilling {
   }
   
 
-===== src/interfaces/IClass.ts =====
+===== src/lib/interfaces/IClass.ts =====
 // src/interfaces/IClass.ts
 import { ITest } from './ITest';
 
@@ -2224,7 +2599,7 @@ export interface IClass {
 }
 
 
-===== src/interfaces/IClassEnrollment.ts =====
+===== src/lib/interfaces/IClassEnrollment.ts =====
 import { ITest } from "./ITest";
 
 
@@ -2244,7 +2619,7 @@ export interface IClassEnrollment {
 }
 
 
-===== src/interfaces/IClassState.ts =====
+===== src/lib/interfaces/IClassState.ts =====
 import { IClass } from "./IClass";
 
 export interface IClassState {
@@ -2254,7 +2629,7 @@ export interface IClassState {
 }
 
 
-===== src/interfaces/ILecture.ts =====
+===== src/lib/interfaces/ILecture.ts =====
 // src/interfaces/ILecture.ts
 export interface ILecture {
     id: string;
@@ -2268,7 +2643,7 @@ export interface ILecture {
   }
   
 
-===== src/interfaces/IOrganization.ts =====
+===== src/lib/interfaces/IOrganization.ts =====
 // src/interfaces/IOrganization.ts
 import { IBilling } from './IBilling';
 
@@ -2286,7 +2661,7 @@ export interface IOrganization {
 }
 
 
-===== src/interfaces/IStudent.ts =====
+===== src/lib/interfaces/IStudent.ts =====
 // src/interfaces/IStudent.ts
 export interface IStudent {
     id: string;
@@ -2311,7 +2686,7 @@ export interface IStudent {
   }
   
 
-===== src/interfaces/ITest.ts =====
+===== src/lib/interfaces/ITest.ts =====
 // src/interfaces/ITest.ts
 export interface ITest {
     id?: string;
@@ -2326,10 +2701,9 @@ export interface ITest {
   }
   
 
-===== src/interfaces/IUser.ts =====
+===== src/lib/interfaces/IUser.ts =====
 // src/interfaces/IUser.ts
 export interface IUser {
-    id: string;
     email: string;
     roles: string[];
     googleId?: string;
@@ -2348,10 +2722,11 @@ export interface IUser {
     last_login_ip?: string;
     createdAt?: string; // ISO string
     updatedAt?: string; // ISO string
+    username?: string;
   }
   
 
-===== src/interfaces/IUserData.ts =====
+===== src/lib/interfaces/IUserData.ts =====
 export interface IUserData {
   id: string;
   email: string;
@@ -2361,17 +2736,180 @@ export interface IUserData {
 }
 
 
-===== src/interfaces/IUserLoginRequestData.ts =====
+===== src/lib/interfaces/IUserLoginRequestData.ts =====
 export default interface IUserLoginRequestData {
   email: string;
   password: string;
 }
 
 
-===== src/interfaces/IUserLoginResponse.ts =====
+===== src/lib/interfaces/IUserLoginResponse.ts =====
 export default interface IAuthApiResponse {
   token: string;
 }
+
+
+===== src/lib/middleware/auth.ts =====
+// src/lib/middleware/auth.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken';
+import User from '@/lib/models/User';
+import dbConnect from '@/lib/mongoose';
+import { prepareError } from '@/lib/utils/errorHandler';
+
+interface AuthResponse {
+  isAuthorized: boolean;
+  user?: any;
+  error?: any;
+}
+
+export async function authorize(request: NextRequest): Promise<AuthResponse> {
+  const authHeader = request.headers.get('authorization');
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { isAuthorized: false, error: { code: 'invalid_token', message: 'Invalid or missing token.' } };
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string; email: string; roles: string[] };
+
+    await dbConnect();
+
+    const user = await User.findById(decoded.id);
+
+    if (!user || user.deleted) {
+      return { isAuthorized: false, error: { code: 'invalid_user', message: 'User not found.' } };
+    }
+
+    return { isAuthorized: true, user };
+  } catch (error) {
+    console.error('Authorization error:', error);
+    return { isAuthorized: false, error: { code: 'invalid_token', message: 'Invalid token.' } };
+  }
+}
+
+
+===== src/lib/models/Class.ts =====
+// src/lib/models/Class.ts
+
+import mongoose, { Schema, Document, Model } from 'mongoose';
+import { IClass } from '@/lib/interfaces/IClass';
+
+export interface IClassDocument extends IClass, Document {}
+
+const ClassSchema: Schema<IClassDocument> = new Schema(
+  {
+    title: { type: String, required: true },
+    description: { type: String },
+    classCode: { type: String, required: true, unique: true },
+    orgId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
+    teacherId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    time: { type: Date, required: true },
+    durationInSeconds: { type: Number, required: true },
+    tests: [{ type: Schema.Types.ObjectId, ref: 'Test' }],
+    deleted: { type: Boolean, default: false },
+    deletedAt: { type: Date },
+    deletedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+  },
+  { timestamps: true }
+);
+
+const Class: Model<IClassDocument> = mongoose.models.Class || mongoose.model<IClassDocument>('Class', ClassSchema);
+
+export default Class;
+
+
+===== src/lib/models/User.ts =====
+// src/lib/models/User.ts
+
+import mongoose, { Schema, Document, Model } from 'mongoose';
+import { IUser } from '@/lib/interfaces/IUser';
+
+export interface IUserDocument extends IUser, Document {}
+
+const UserSchema: Schema<IUserDocument> = new Schema(
+  {
+    email: { type: String, required: true, unique: true },
+    roles: { type: [String], default: ['owner'] },
+    googleId: { type: String },
+    provider: { type: String, default: 'local' },
+    photoUrl: { type: String },
+    displayName: { type: String },
+    orgId: { type: Schema.Types.ObjectId, ref: 'Organization' },
+    hashedPassword: { type: String },
+    salt: { type: String },
+    emailConfirmToken: { type: String },
+    resetToken: { type: String },
+    trackingPermission: { type: Boolean, default: false },
+    emailVerified: { type: Boolean, default: false },
+    deleted: { type: Boolean, default: false },
+    last_login: { type: Date },
+    last_login_ip: { type: String },
+    username: { type: String }, // Ensure this field exists if used
+  },
+  { timestamps: true }
+);
+
+const User: Model<IUserDocument> = mongoose.models.User || mongoose.model<IUserDocument>('User', UserSchema);
+
+export default User;
+
+
+===== src/lib/mongoose.ts =====
+// src/lib/mongoose.ts
+
+import mongoose from 'mongoose';
+
+const MONGODB_URI = process.env.MONGODB_URI as string;
+const MONGODB_DB = process.env.MONGODB_DB as string;
+
+if (!MONGODB_URI) {
+  throw new Error(
+    'Please define the MONGODB_URI environment variable inside .env.local'
+  );
+}
+
+if (!MONGODB_DB) {
+  throw new Error(
+    'Please define the MONGODB_DB environment variable inside .env.local'
+  );
+}
+
+/**
+ * Global is used here to maintain a cached connection across hot reloads in development.
+ * This prevents connections growing exponentially during API Route usage.
+ */
+if (!global.mongoose) {
+  global.mongoose = { conn: null, promise: null };
+}
+
+const cached = global.mongoose;
+
+async function dbConnect() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+      dbName: MONGODB_DB,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    };
+
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      return mongoose;
+    });
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+export default dbConnect;
 
 
 ===== src/lib/types/ClassNameOnlyProps.ts =====
@@ -2403,6 +2941,129 @@ import { INavigationItem } from "@/lib/types/INavigationItem"
 export interface INavigationProps {
     navigationItems: INavigationItem[];
 }
+
+===== src/lib/utils/ErrorHandler.ts =====
+// src/lib/utils/errorHandler.ts
+
+interface ErrorResponse {
+  code: string;
+  message: string;
+  param?: string;
+}
+
+const ERROR_CODE_MESSAGE_MAP: Record<string, string> = {
+  invalid_input: 'Invalid input.',
+  invalid_provider: 'Invalid provider.',
+  invalid_credentials: 'Invalid credentials.',
+  class_code_already_exists: 'Class code already exists.',
+  user_not_found: 'User not found.',
+  internal_error: 'Internal server error.',
+  // Add other mappings...
+};
+
+export function prepareError(code: string, param?: string): { error: ErrorResponse } {
+  const error: ErrorResponse = {
+    code,
+    message: ERROR_CODE_MESSAGE_MAP[code] || 'An error occurred.',
+  };
+
+  if (param) {
+    error.param = param;
+  }
+
+  return { error };
+}
+
+
+===== src/lib/utils/Validators.ts =====
+// src/utils/Validators.ts
+import { validate, ValidationError } from 'class-validator';
+
+export async function validateModel<T>(model: T): Promise<ValidationError[]> {
+  return await validate(model as any);
+}
+
+
+===== src/lib/utils/mail.ts =====
+// src/lib/utils/mail.ts
+
+import nodemailer from 'nodemailer';
+
+export async function sendMail(to: string, subject: string, text: string, html: string) {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.NODEMAILER_USER,
+        pass: process.env.NODEMAILER_PASSWORD,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: process.env.NODEMAILER_USER,
+      to,
+      subject,
+      text,
+      html,
+    });
+
+    console.log('Message sent:', info.messageId);
+  } catch (error) {
+    console.error('Error sending mail:', error);
+  }
+}
+
+export async function sendEmailVerificationRequest(email: string, verificationToken: string) {
+  const verificationURL = `${process.env.DOMAIN}/api/auth/verifyEmail/${verificationToken}`;
+  const subject = 'Email Verification for My Academy';
+  const text = `To verify your email, open URL ${verificationURL}`;
+  const html = `<b>Welcome to My Academy, please click on </b><a href="${verificationURL}">this</a><b> URL to verify your email address.</b>`;
+
+  await sendMail(email, subject, text, html);
+}
+
+export async function sendWelcomeEmail(email: string) {
+  const subject = 'Welcome to My Academy';
+  const text = 'Welcome to My Academy';
+  const html = `<b>Welcome to My Academy!</b>`;
+
+  await sendMail(email, subject, text, html);
+}
+
+
+===== src/lib/utils/tokenUtils.ts =====
+// src/lib/utils/tokenUtils.ts
+
+export const getInitialToken = (): string | null => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('token');
+  }
+  return null;
+};
+
+export const setToken = (token: string): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('token', token);
+  }
+};
+
+export const removeToken = (): void => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('token');
+  }
+};
+
+
+===== src/lib/utils/utils.ts =====
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
 
 ===== src/models/BaseModel.ts =====
 // src/models/BaseModel.ts
@@ -2446,7 +3107,7 @@ export abstract class BaseModel {
 // src/models/Billing.ts
 import { Expose } from 'class-transformer';
 import { IsString, IsArray, ArrayNotEmpty } from 'class-validator';
-import { IBilling } from '../interfaces/IBilling';
+import { IBilling } from '../lib/interfaces/IBilling';
 import { BaseModel } from './BaseModel';
 
 export class Billing extends BaseModel implements IBilling {
@@ -2502,7 +3163,7 @@ export class Billing extends BaseModel implements IBilling {
 import { Expose, Type } from 'class-transformer';
 import { IsBoolean, IsDateString, IsNumber, IsOptional, IsString, ValidateNested, IsArray } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { IClass } from '../interfaces/IClass';
+import { IClass } from '../lib/interfaces/IClass';
 import { Test } from './Test';
 
 export class Class extends BaseModel implements IClass {
@@ -2585,7 +3246,7 @@ export class Class extends BaseModel implements IClass {
 import { Expose, Type } from 'class-transformer';
 import { IsBoolean, IsOptional, IsString, ValidateNested, IsArray, IsEnum } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { IClassEnrollment } from '../interfaces/IClassEnrollment';
+import { IClassEnrollment } from '../lib/interfaces/IClassEnrollment';
 import { Test } from './Test';
 
 export class ClassEnrollment extends BaseModel implements IClassEnrollment {
@@ -2658,7 +3319,7 @@ export class ClassEnrollment extends BaseModel implements IClassEnrollment {
 import { Expose, Type } from 'class-transformer';
 import { IsDateString, IsOptional, IsString, IsArray } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { ILecture } from '../interfaces/ILecture';
+import { ILecture } from '../lib/interfaces/ILecture';
 
 export class Lecture extends BaseModel implements ILecture {
   static apiEndpoint = '/lectures';
@@ -2712,7 +3373,7 @@ export class Lecture extends BaseModel implements ILecture {
 import { Expose, Type } from 'class-transformer';
 import { IsBoolean, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { IOrganization } from '../interfaces/IOrganization';
+import { IOrganization } from '../lib/interfaces/IOrganization';
 import { Billing } from './Billing';
 
 export class Organization extends BaseModel implements IOrganization {
@@ -2775,7 +3436,7 @@ export class Organization extends BaseModel implements IOrganization {
 import { Expose } from 'class-transformer';
 import { IsEmail, IsBoolean, IsOptional, IsString, IsArray } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { IStudent } from '../interfaces/IStudent';
+import { IStudent } from '../lib/interfaces/IStudent';
 
 export class Student extends BaseModel implements IStudent {
   static apiEndpoint = '/students';
@@ -2882,7 +3543,7 @@ export class Student extends BaseModel implements IStudent {
 import { Expose, Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, ValidateNested, IsArray } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { ITest } from '../interfaces/ITest';
+import { ITest } from '../lib/interfaces/ITest';
 
 export class Test extends BaseModel implements ITest {
   static apiEndpoint = '/tests';
@@ -2941,7 +3602,7 @@ export class Test extends BaseModel implements ITest {
 import { Expose, Type } from 'class-transformer';
 import { IsEmail, IsBoolean, IsOptional, IsString, IsArray } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { IUser } from '../interfaces/IUser';
+import { IUser } from '../lib/interfaces/IUser';
 
 export class User extends BaseModel implements IUser {
   static apiEndpoint = '/users';
@@ -3048,7 +3709,7 @@ export class User extends BaseModel implements IUser {
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 import { plainToInstance } from "class-transformer";
 import { API_BASE_URL } from "../config/config";
-import { handleApiError } from "../utils/ErrorHandler";
+import { handleApiError } from "../lib/utils/ErrorHandler";
 import { IRepository } from "./IRepository";
 import { BaseModel } from "../models/BaseModel";
 
@@ -3274,13 +3935,13 @@ export class UserRepository extends BaseRepository<User> {
 // src/store/authSlice.ts
 
 import AuthService from "@/Services/AuthService";
-import UserService from "@/Services/UserService";
-import IAuthState from "@/interfaces/IAuthState";
+import UserService from "@/lib/Services/UserService";
+import IAuthState from "@/lib/interfaces/IAuthState";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import IUserLoginResponse from "@/interfaces/IUserLoginResponse";
-import IUserLoginRequestData from "@/interfaces/IUserLoginRequestData";
-import { getInitialToken, setToken, removeToken } from "@/utils/tokenUtils";
-import { IUserData } from "@/interfaces/IUserData";
+import IUserLoginResponse from "@/lib/interfaces/IUserLoginResponse";
+import IUserLoginRequestData from "@/lib/interfaces/IUserLoginRequestData";
+import { getInitialToken, setToken, removeToken } from "@/lib/utils/tokenUtils";
+import { IUserData } from "@/lib/interfaces/IUserData";
 
 const authService = new AuthService();
 const userService = new UserService();
@@ -3370,7 +4031,8 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        // Token is already set in loginUser thunk
+        state.token = action.payload.token;
+        // Token is now set in the store
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -3383,7 +4045,8 @@ const authSlice = createSlice({
       })
       .addCase(signupUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        // Token is already set in signupUser thunk
+        state.token = action.payload.token;
+        // Token is now set in the store
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -3425,9 +4088,9 @@ export default authSlice.reducer;
 ===== src/store/classSlice.ts =====
 // src/store/classSlice.ts
 
-import { IClass } from '@/interfaces/IClass';
-import ClassService from '@/Services/ClassService';
-import { IClassState } from '@/interfaces/IClassState';
+import { IClass } from '@/lib/interfaces/IClass';
+import ClassService from '@/lib/Services/ClassService';
+import { IClassState } from '@/lib/interfaces/IClassState';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 
@@ -3597,65 +4260,6 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-
-===== src/utils/ErrorHandler.ts =====
-// src/utils/ErrorHandler.ts
-import { AxiosError } from 'axios';
-
-export function handleApiError(error: any): void {
-  if (error.isAxiosError) {
-    const axiosError = error as AxiosError;
-    if (axiosError.response) {
-      console.error('API Error:', axiosError.response.status, axiosError.response.data);
-      // You can implement more sophisticated error handling here
-    } else if (axiosError.request) {
-      console.error('No response received:', axiosError.request);
-    } else {
-      console.error('Axios Error:', axiosError.message);
-    }
-  } else {
-    console.error('Unexpected Error:', error);
-  }
-}
-
-
-===== src/utils/Validators.ts =====
-// src/utils/Validators.ts
-import { validate, ValidationError } from 'class-validator';
-
-export async function validateModel<T>(model: T): Promise<ValidationError[]> {
-  return await validate(model as any);
-}
-
-
-===== src/utils/tokenUtils.ts =====
-export const getInitialToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem("token");
-  }
-  return null;
-};
-
-export const setToken = (token: string): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem("token", token);
-  }
-};
-
-export const removeToken = (): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem("token");
-  }
-};
-
-===== src/utils/utils.ts =====
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-
 
 ===== tailwind.config.ts =====
 import type { Config } from "tailwindcss"

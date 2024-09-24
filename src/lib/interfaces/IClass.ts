@@ -2,7 +2,6 @@
 import { ITest } from './ITest';
 
 export interface IClass {
-  id: string;
   title: string;
   description: string;
   classCode: string;

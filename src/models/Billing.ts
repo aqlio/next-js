@@ -1,7 +1,7 @@
 // src/models/Billing.ts
 import { Expose } from 'class-transformer';
 import { IsString, IsArray, ArrayNotEmpty } from 'class-validator';
-import { IBilling } from '../interfaces/IBilling';
+import { IBilling } from '../lib/interfaces/IBilling';
 import { BaseModel } from './BaseModel';
 
 export class Billing extends BaseModel implements IBilling {

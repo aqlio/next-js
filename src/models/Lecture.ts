@@ -2,7 +2,7 @@
 import { Expose, Type } from 'class-transformer';
 import { IsDateString, IsOptional, IsString, IsArray } from 'class-validator';
 import { BaseModel } from './BaseModel';
-import { ILecture } from '../interfaces/ILecture';
+import { ILecture } from '../lib/interfaces/ILecture';
 
 export class Lecture extends BaseModel implements ILecture {
   static apiEndpoint = '/lectures';

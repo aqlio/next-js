@@ -1,6 +1,5 @@
 // src/interfaces/IUser.ts
 export interface IUser {
-    id: string;
     email: string;
     roles: string[];
     googleId?: string;
@@ -19,5 +18,6 @@ export interface IUser {
     last_login_ip?: string;
     createdAt?: string; // ISO string
     updatedAt?: string; // ISO string
+    username?: string;
   }
   
